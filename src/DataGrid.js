@@ -17,15 +17,27 @@ function addRow(config, previousState, data) {
 
     const newRow = {};
 
-    config.columns.map(c => c.name).forEach(columnName => {
+    config.columns.forEach(columnConfig => {
+        const columnName = columnConfig.name;
+
         if (data.row && data.row[columnName])
             newRow[columnName] = data.row[columnName]
         else
-            newRow[columnName] = '';
+            newRow[columnName] = defaultValueForColumn(columnConfig);
     });
 
     nextState.push(newRow);
     return nextState;
+}
+
+function defaultValueForColumn(columnConfig) {
+    const config = columnConfig || {};
+
+    if (config.default)
+        return config.default;
+    else if (columnConfig.type === 'number')
+        return 0;
+    return '';
 }
 
 function removeRows(previousState, data) {
@@ -36,8 +48,6 @@ function removeRows(previousState, data) {
     let count = parseInt(data.count);
     if (isNaN(count))
         count = 1;
-
-    console.log(`remove row ${start} (${typeof start})`)
 
     const nextState = copy(previousState);
 
@@ -53,8 +63,12 @@ function removeRows(previousState, data) {
  *****************************************************************************/
 function DataGrid(initialConfig, initialRows = []) {
 
+    const rows = initialRows.reduce((prevState, nextRow) => {
+        return addRow(initialConfig, prevState, {row: nextRow});
+    }, []);
+
     let state = {
-        rows: initialRows
+        rows
     };
 
     function getInitialConfig() {

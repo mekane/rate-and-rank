@@ -43,8 +43,23 @@ describe('The DataGrid module', () => {
     });
 
     it(`can be initialized with rows`, () => {
-        const dataGrid = DataGrid(basicConfig, basicRows());
-        expect(dataGrid).to.be.an('object');
+        const initialRow = {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'};
+        const dataGrid = DataGrid(basicConfig, [initialRow]);
+
+        expect(dataGrid.getRows()).to.deep.equal([initialRow]);
+    });
+
+    it(`adds default values to the initial rows`, () => {
+        const config = {
+            name: 'Test',
+            columns: [
+                {name: 'Column A'},
+                {name: 'Column B', type: 'number'},
+            ]
+        };
+        const dataGrid = DataGrid(config, [{}]);
+
+        expect(dataGrid.getRows()).to.deep.equal([{'Column A': '', 'Column B': 0}]);
     });
 
     it(`returns a copy of the current row values`, () => {
@@ -120,6 +135,37 @@ describe('Adding rows', () => {
         const rows = dataGrid.getRows();
         expect(rows).to.be.an('array').with.length(1);
         expect(rows).to.deep.equal([{'Column A': '', 'Column B': '', 'Column C': ''}]);
+    });
+
+    it(`assigns default value based on configured column type`, () => {
+        const numericColumnConfig = {
+            name: 'Test',
+            columns: [{name: 'Column A', type: 'number'}]
+        };
+        const dataGrid = DataGrid(numericColumnConfig);
+        dataGrid.send({action: 'addRow'});
+
+        expect(dataGrid.getRows()).to.deep.equal([{'Column A': 0}]);
+    });
+
+    it('assigns default values to the new row if configured', () => {
+        const numericColumnConfig = {
+            name: 'Test',
+            columns: [
+                {name: 'Column A', type: 'string', default: 'empty'},
+                {name: 'Column B', type: 'number', default: 666}
+            ]
+        };
+        const dataGrid = DataGrid(numericColumnConfig);
+        dataGrid.send({action: 'addRow'});
+        dataGrid.send({action: 'addRow'});
+
+        const expectedRows = [
+            {'Column A': 'empty', 'Column B': 666},
+            {'Column A': 'empty', 'Column B': 666}
+        ];
+
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
     });
 
     it(`can add a new row with initial values`, () => {
