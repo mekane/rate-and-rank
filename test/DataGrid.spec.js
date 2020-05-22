@@ -67,6 +67,46 @@ describe('The DataGrid module', () => {
     });
 });
 
+describe('Removing rows', () => {
+    it(`has no effect if the index is missing or out of bounds`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+
+        dataGrid.send({action: 'removeRow'});
+        dataGrid.send({action: 'removeRow', index: -1});
+        dataGrid.send({action: 'removeRow', index: 99});
+        dataGrid.send({action: 'removeRow', index: 'none'});
+
+        expect(dataGrid.getRows()).to.be.an('array').with.length(4);
+    });
+
+    it(`removes rows by index`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+
+        const expectedRows = [
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+
+        dataGrid.send({action: 'removeRow', index: 1});
+
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
+
+    it(`can remove multiple rows`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+
+        const expectedRows = [
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+
+        dataGrid.send({action: 'removeRow', index: 1, count: 2});
+
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
+});
+
 describe('Adding rows', () => {
     it(`starts empty with no rows`, () => {
         const dataGrid = DataGrid(basicConfig);
@@ -100,13 +140,4 @@ describe('Modifying rows', () => {
     it(`can set the value of one field on all the columns`);
 
     it(`can apply a function to a field on all columns`);
-});
-
-describe('Removing rows', () => {
-    it(`removes rows by index`);
-
-    it(`can remove multiple rows`, () => {
-        //const dataGrid = DataGrid(basicConfig, basicRows());
-        //dataGrid.send('remove', {start: 1, count: 2})
-    });
 });
