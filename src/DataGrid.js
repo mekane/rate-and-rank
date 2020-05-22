@@ -1,4 +1,8 @@
 'use strict';
+const Validator = require('jsonschema').Validator;
+const dataGridConfigSchema = require('../schema/DataGridConfig.schema.json');
+const schemaValidator = new Validator();
+
 
 function handleMessage(config, state = {}, action = '', data) {
     switch (action.toLowerCase()) {
@@ -62,6 +66,10 @@ function removeRows(previousState, data) {
  * given configuration and optionally containing some initial rows.
  *****************************************************************************/
 function DataGrid(initialConfig, initialRows = []) {
+
+    const result = schemaValidator.validate(initialConfig, dataGridConfigSchema);
+    if (result.errors[0])
+        throw new Error('Invalid configuration: ' + result.errors[0].stack);
 
     const rows = initialRows.reduce((prevState, nextRow) => {
         return addRow(initialConfig, prevState, {row: nextRow});

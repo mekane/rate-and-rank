@@ -1,10 +1,14 @@
 const deepFreeze = require('deep-freeze');
 const expect = require('chai').expect;
 
+const Validator = require('jsonschema').Validator;
+const dataGridConfigSchema = require('../schema/DataGridConfig.schema.json');
+const validator = new Validator();
+
 const DataGrid = require('../src/DataGrid');
 
 const basicConfig = {
-    name: 'Test',
+    name: 'Basic Config',
     columns: [
         {name: 'Column A'},
         {name: 'Column B'},
@@ -22,6 +26,64 @@ function basicRows() {
     ];
 }
 
+describe('The DataGrid config schema', () => {
+    function validate(config) {
+        const result = validator.validate(config, dataGridConfigSchema)
+
+        const error = result.errors[0];
+        console.log(config.name + ':', error ? error.stack : ' valid');
+        return !error;
+    }
+
+    it('passes valid config objects', () => {
+        expect(validate(basicConfig)).to.equal(true);
+
+        const minimalConfig = {
+            name: 'Minimal Config',
+            columns: [{name: 'Column'}]
+        };
+        expect(validate(minimalConfig)).to.equal(true);
+
+        const fullConfig = {
+            name: "Full Config",
+            columns: [
+                {name: "Column A", type: "string", default: "Foo"},
+                {name: "column B", type: "number", default: 1}
+            ],
+        };
+        expect(validate(fullConfig)).to.equal(true);
+    });
+
+    it('rejects invalid config objects', () => {
+        const missingName = {};
+
+        const missingColumns = {
+            name: 'Missing Columns'
+        };
+
+        const emptyColumns = {
+            name: 'Empty Columns',
+            columns: []
+        };
+
+        const missingColumnName = {
+            name: 'Missing Column Name',
+            columns: [{}]
+        };
+
+        const invalidColumnType = {
+            name: 'Invalid Column Type',
+            columns: [{name: 'Column', type: "invalid"}]
+        };
+
+        expect(validate(missingName)).to.equal(false);
+        expect(validate(missingColumns)).to.equal(false);
+        expect(validate(emptyColumns)).to.equal(false);
+        expect(validate(missingColumnName)).to.equal(false);
+        expect(validate(invalidColumnType)).to.equal(false);
+    });
+});
+
 describe('The DataGrid module', () => {
     it(`is initialized with a config object and a copy of the config is available on the instance`, () => {
         const initialConfig = {
@@ -35,6 +97,15 @@ describe('The DataGrid module', () => {
         expect(dataGrid).to.be.an('object');
         expect(dataGrid.getInitialConfig()).to.not.equal(initialConfig);
         expect(dataGrid.getInitialConfig()).to.deep.equal(initialConfig);
+    });
+
+    it(`throws an error if the provided config doesn't conform to the schema`, () => {
+        function initWithBadConfig() {
+            const invalidConfig = {};
+            return DataGrid(invalidConfig);
+        }
+
+        expect(initWithBadConfig).to.throw(/Invalid config/);
     });
 
     it(`doesn't modify the config object that is passed in`, () => {

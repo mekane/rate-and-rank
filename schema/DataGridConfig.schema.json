@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "$id": "http://martykane.org/schemas/DataGridConfig.schema.json",
+  "definitions": {
+    "columnConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/columnConfig"
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "columns"
+  ]
+}
