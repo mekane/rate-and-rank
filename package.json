@@ -1,0 +1,16 @@
+{
+  "name": "rate-and-rank",
+  "version": "1.0.0",
+  "description": "An application to set up data grids that can easily be ordered and configured",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -b"
+  },
+  "author": "Marty Kane",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "deep-freeze": "0.0.1",
+    "mocha": "^7.1.2"
+  }
+}
