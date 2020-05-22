@@ -70,11 +70,26 @@ describe('The DataGrid module', () => {
 describe('Adding rows', () => {
     it(`starts empty with no rows`, () => {
         const dataGrid = DataGrid(basicConfig);
+        expect(dataGrid.getRows()).to.be.an('array').with.length(0);
     });
 
-    it(`can add a new blank row`);
+    it(`can add a new blank row with default values`, () => {
+        const dataGrid = DataGrid(basicConfig);
+        dataGrid.send({action: 'addRow'});
 
-    it(`can add a new row with initial values`);
+        const rows = dataGrid.getRows();
+        expect(rows).to.be.an('array').with.length(1);
+        expect(rows).to.deep.equal([{'Column A': '', 'Column B': '', 'Column C': ''}]);
+    });
+
+    it(`can add a new row with initial values`, () => {
+        const dataGrid = DataGrid(basicConfig);
+        dataGrid.send({action: 'addRow', row: {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'}})
+
+        const rows = dataGrid.getRows();
+        expect(rows).to.be.an('array').with.length(1);
+        expect(rows).to.deep.equal([{'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'}]);
+    });
 });
 
 describe('Modifying rows', () => {
