@@ -1,13 +1,33 @@
-function DataGrid(initialConfig) {
+'use strict';
+
+function DataGrid(initialConfig, initialRows = []) {
+
+    let state = {
+        rows: initialRows
+    };
 
     function getInitialConfig() {
-        return JSON.parse(JSON.stringify(initialConfig));
+        return copy(initialConfig);
+    }
+
+    function getRows() {
+        return copy(state.rows);
+    }
+
+    function send(message) {
+
     }
 
     return {
-        getInitialConfig
+        getInitialConfig,
+        getRows,
+        send
     };
 }
 
+
+function copy(object) {
+    return JSON.parse(JSON.stringify(object));
+}
 
 module.exports = DataGrid;
