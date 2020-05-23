@@ -19,8 +19,8 @@ function handleMessage(config, state = {}, action = '', data) {
 }
 
 function nextState(previousState, propertyName, newState) {
-    //if (previousState[propertyName] === newState[propertyName])
-    //  return previousState;
+    if (previousState[propertyName] === newState)
+        return previousState;
     return Object.assign({}, previousState, {[propertyName]: newState});
 }
 

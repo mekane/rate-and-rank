@@ -158,13 +158,16 @@ describe('Message sending strategy to manipulate the state of the grid', () => {
 describe('Removing rows', () => {
     it(`has no effect if the index is missing or out of bounds`, () => {
         const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
 
         dataGrid.send({action: 'removeRow'});
         dataGrid.send({action: 'removeRow', index: -1});
         dataGrid.send({action: 'removeRow', index: 99});
         dataGrid.send({action: 'removeRow', index: 'none'});
 
-        expect(dataGrid.getRows()).to.be.an('array').with.length(4);
+        const newState = dataGrid.getState();
+        expect(newState.rows).to.be.an('array').with.length(4);
+        expect(newState).to.equal(previousState);
     });
 
     it(`removes rows by index`, () => {
