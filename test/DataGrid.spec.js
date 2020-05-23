@@ -355,8 +355,28 @@ describe('Modifying rows', () => {
 
 describe('Undo and Redo', () => {
     it('keeps an undo history', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        expect(dataGrid.getUndoCount()).to.equal(0);
 
+        dataGrid.send({action: 'addRow'});
+        
+        expect(dataGrid.getUndoCount()).to.equal(1);
     });
+
+    it('restores the previous state when an "undo" action is sent', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'addRow'});
+        const nextState = dataGrid.getState();
+        expect(nextState).to.not.equal(previousState);
+
+        dataGrid.send({action: 'undo'});
+        const restoredState = dataGrid.getState();
+        expect(restoredState).to.equal(previousState);
+    });
+
+    it('has no effect if there are no more history states to restore');
 
     it('keeps a redo future history');
 

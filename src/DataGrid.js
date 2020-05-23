@@ -118,9 +118,11 @@ function DataGrid(initialConfig, initialRows = []) {
         return addRow(initialConfig, prevState, {row: nextRow});
     }, []);
 
+    let past = [];
     let state = {
         rows
     };
+    let future = [];
 
     function getInitialConfig() {
         return copy(initialConfig);
@@ -128,6 +130,10 @@ function DataGrid(initialConfig, initialRows = []) {
 
     function getState() {
         return state;
+    }
+
+    function getUndoCount() {
+        return past.length;
     }
 
     function send(message = {}) {
@@ -141,7 +147,7 @@ function DataGrid(initialConfig, initialRows = []) {
         // pop last item from past
         // set present to the popped item
         // unshift the previous present onto future
-
+        
         //REDO
         // Shift first item off of future
         // Set present to the shifted item
@@ -149,16 +155,18 @@ function DataGrid(initialConfig, initialRows = []) {
 
         //Other Action
         // Push present onto end of past
-        // Set preset to next state
+        // Set present to next state
         // Clear future
-
+        past.push(state);
         state = nextState;
+        future = [];
     }
 
     return {
         getInitialConfig,
         getRows: _ => state.rows,
         getState,
+        getUndoCount,
         send
     };
 }
