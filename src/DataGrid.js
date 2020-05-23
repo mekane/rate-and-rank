@@ -10,6 +10,8 @@ function handleMessage(config, state = {}, action = '', data) {
             return Object.assign({}, state, {rows: addRow(config, state.rows, data)});
         case 'removerow':
             return Object.assign({}, state, {rows: removeRows(state.rows, data)});
+        case 'setfield':
+            return Object.assign({}, state, {rows: setField(config, state.rows, data)});
         default:
             console.log(`UNKNOWN ACTION ${action}`);
             return state;
@@ -61,6 +63,40 @@ function removeRows(previousState, data) {
     return nextState;
 }
 
+function setField(config, previousState, data) {
+    const nextState = copy(previousState);
+
+    if (data.rowIndex) {
+        const rowToChange = nextState[data.rowIndex];
+
+        if (data.columnName && data.value) {
+            rowToChange[data.columnName] = data.value;
+        }
+        else if (data.values) {
+            Object.keys(data.values).forEach(columnName => {
+                rowToChange[columnName] = data.values[columnName];
+            });
+        }
+    }
+    else if (data.columnName) {
+        const columnName = data.columnName;
+
+        if (data.value) {
+            nextState.forEach(row => {
+                row[columnName] = data.value;
+            });
+        }
+        else if (data.fn && typeof data.fn === 'function') {
+            const columnConfig = config.columns[columnName];
+            nextState.forEach((row, i) => {
+                row[columnName] = data.fn(row[columnName], i, columnConfig);
+            });
+        }
+    }
+
+    return nextState;
+}
+
 /*****************************************************************************
  * The factory function that returns a new data grid instance based on the
  * given configuration and optionally containing some initial rows.
@@ -91,9 +127,7 @@ function DataGrid(initialConfig, initialRows = []) {
         //push old state
 
         //console.log(state);
-
         const nextState = handleMessage(initialConfig, state, message.action, message);
-
         //console.log(nextState);
 
         state = nextState;

@@ -250,11 +250,66 @@ describe('Adding rows', () => {
 });
 
 describe('Modifying rows', () => {
-    it(`can change the value of a single field on a single row`);
+    it(`can change the value of a single field on a single row`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const action = {action: 'setField', rowIndex: 1, columnName: 'Column A', value: 'New Value'};
+        dataGrid.send(action);
 
-    it(`can change the value of multiple fields on a single row`);
+        const expectedRows = [
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'New Value', 'Column B': 'B1', 'Column C': 'C1'},
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
 
-    it(`can set the value of one field on all the columns`);
+    it(`can change the value of multiple fields on a single row`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const action = {
+            action: 'setField',
+            rowIndex: 1,
+            values: {'Column A': 'New Value A', 'Column B': 'New Value B'}
+        };
+        dataGrid.send(action);
 
-    it(`can apply a function to a field on all columns`);
+        const expectedRows = [
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'New Value A', 'Column B': 'New Value B', 'Column C': 'C1'},
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
+
+    it(`can set the value of one field on all the columns`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const action = {action: 'setField', columnName: 'Column A', value: 'New A'};
+        dataGrid.send(action);
+
+        const expectedRows = [
+            {'Column A': 'New A', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'New A', 'Column B': 'B1', 'Column C': 'C1'},
+            {'Column A': 'New A', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'New A', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
+
+    it(`can apply a function to a field on all columns`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        function doubleIndex(oldValue, rowIndex, columnConfig) {
+            return 'New A' + (rowIndex * 2);
+        }
+        const action = {action: 'setField', columnName: 'Column A', fn: doubleIndex};
+        dataGrid.send(action);
+
+        const expectedRows = [
+            {'Column A': 'New A0', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'New A2', 'Column B': 'B1', 'Column C': 'C1'},
+            {'Column A': 'New A4', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'New A6', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
 });
