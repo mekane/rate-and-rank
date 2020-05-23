@@ -353,6 +353,44 @@ describe('Modifying rows', () => {
     })
 });
 
+describe('Reordering rows', () => {
+    it(`has no effect if the row index or new index are missing or bad`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'moveRow'}); //nothing
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'moveRow', rowIndex: 1}); //no new index
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'moveRow', newIndex: 1}); //no row index
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
+
+    it('can move a row to a different spot in the list', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+
+        const expectedRows1 = [
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'A1', 'Column B': 'B1', 'Column C': 'C1'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+        dataGrid.send({action: 'moveRow', rowIndex: 2, newIndex: 0});
+        expect(dataGrid.getState().rows).to.deep.equal(expectedRows1);
+
+        const expectedRows2 = [
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'A1', 'Column B': 'B1', 'Column C': 'C1'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'},
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'}
+        ];
+        dataGrid.send({action: 'moveRow', rowIndex: 1, newIndex: 3});
+        expect(dataGrid.getState().rows).to.deep.equal(expectedRows2);
+    });
+});
+
 describe('Undo and Redo', () => {
     it('keeps an undo history', () => {
         const dataGrid = DataGrid(basicConfig, basicRows());

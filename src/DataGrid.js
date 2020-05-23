@@ -8,6 +8,8 @@ function handleMessage(config, state = {}, action = '', data) {
     switch (action.toLowerCase()) {
         case 'addrow':
             return nextState(state, 'rows', addRow(config, state.rows, data));
+        case 'moverow':
+            return nextState(state, 'rows', moveRow(state.rows, data));
         case 'removerow':
             return nextState(state, 'rows', removeRows(state.rows, data));
         case 'setfield':
@@ -50,6 +52,20 @@ function defaultValueForColumn(columnConfig) {
     else if (columnConfig.type === 'number')
         return 0;
     return '';
+}
+
+function moveRow(previousState, data) {
+    let rowIndex = parseInt(data.rowIndex);
+    if (isNaN(rowIndex) || rowIndex < 0 || rowIndex > previousState.length)
+        return previousState;
+
+    let newIndex = parseInt(data.newIndex);
+    if (isNaN(newIndex) || newIndex < 0 || newIndex > previousState.length)
+        return previousState;
+
+    const nextState = copy(previousState);
+    nextState.splice(newIndex, 0, nextState.splice(rowIndex, 1)[0]);
+    return nextState;
 }
 
 function removeRows(previousState, data) {
