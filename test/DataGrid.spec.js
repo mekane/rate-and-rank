@@ -393,7 +393,15 @@ describe('Undo and Redo', () => {
 
     });
 
-    it('keeps a redo future history');
+    it('keeps a redo future history', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        expect(dataGrid.getRedoCount()).to.equal(0);
+
+        dataGrid.send({action: 'addRow'});
+        dataGrid.send({action: 'undo'});
+
+        expect(dataGrid.getRedoCount()).to.equal(1);
+    });
 
     it('discards the future when a new action is done');
 });

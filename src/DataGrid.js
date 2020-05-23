@@ -128,6 +128,10 @@ function DataGrid(initialConfig, initialRows = []) {
         return copy(initialConfig);
     }
 
+    function getRedoCount() {
+        return future.length;
+    }
+
     function getState() {
         return state;
     }
@@ -165,6 +169,7 @@ function DataGrid(initialConfig, initialRows = []) {
 
     return {
         getInitialConfig,
+        getRedoCount,
         getRows: _ => state.rows,
         getState,
         getUndoCount,
