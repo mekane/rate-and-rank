@@ -359,7 +359,7 @@ describe('Undo and Redo', () => {
         expect(dataGrid.getUndoCount()).to.equal(0);
 
         dataGrid.send({action: 'addRow'});
-        
+
         expect(dataGrid.getUndoCount()).to.equal(1);
     });
 
@@ -376,7 +376,22 @@ describe('Undo and Redo', () => {
         expect(restoredState).to.equal(previousState);
     });
 
-    it('has no effect if there are no more history states to restore');
+    it('has no effect if there are no more history states to restore', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'addRow'});
+
+        dataGrid.send({action: 'undo'});
+        dataGrid.send({action: 'undo'});
+        dataGrid.send({action: 'undo'});
+        dataGrid.send({action: 'undo'});
+        dataGrid.send({action: 'undo'});
+        dataGrid.send({action: 'undo'});
+
+        expect(dataGrid.getState()).to.equal(previousState);
+
+    });
 
     it('keeps a redo future history');
 

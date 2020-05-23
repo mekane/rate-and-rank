@@ -137,29 +137,30 @@ function DataGrid(initialConfig, initialRows = []) {
     }
 
     function send(message = {}) {
-        //push old state
+        const action = message.action.toLowerCase();
 
-        //console.log(state);
-        const nextState = handleMessage(initialConfig, state, message.action, message);
-        //console.log(nextState);
+        //UNDO - put present at beginning of future, pop most recent past state
+        if (action === 'undo') {
+            if (past.length) {
+                future.unshift(state);
+                state = past.pop();
+            }
+        }
 
-        //UNDO
-        // pop last item from past
-        // set present to the popped item
-        // unshift the previous present onto future
-        
-        //REDO
-        // Shift first item off of future
-        // Set present to the shifted item
-        // Push old present onto end of past
+            //REDO
+            // Shift first item off of future
+            // Set present to the shifted item
+            // Push old present onto end of past
 
-        //Other Action
-        // Push present onto end of past
-        // Set present to next state
+            //Other Action
+            // Push present onto end of past
+            // Set present to next state
         // Clear future
-        past.push(state);
-        state = nextState;
-        future = [];
+        else {
+            past.push(state);
+            state = handleMessage(initialConfig, state, message.action, message);
+            future = [];
+        }
     }
 
     return {
