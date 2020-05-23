@@ -7,15 +7,21 @@ const schemaValidator = new Validator();
 function handleMessage(config, state = {}, action = '', data) {
     switch (action.toLowerCase()) {
         case 'addrow':
-            return Object.assign({}, state, {rows: addRow(config, state.rows, data)});
+            return nextState(state, 'rows', addRow(config, state.rows, data));
         case 'removerow':
-            return Object.assign({}, state, {rows: removeRows(state.rows, data)});
+            return nextState(state, 'rows', removeRows(state.rows, data));
         case 'setfield':
-            return Object.assign({}, state, {rows: setField(config, state.rows, data)});
+            return nextState(state, 'rows', setField(config, state.rows, data));
         default:
             console.log(`UNKNOWN ACTION ${action}`);
             return state;
     }
+}
+
+function nextState(previousState, propertyName, newState) {
+    //if (previousState[propertyName] === newState[propertyName])
+    //  return previousState;
+    return Object.assign({}, previousState, {[propertyName]: newState});
 }
 
 function addRow(config, previousState, data) {
@@ -119,8 +125,8 @@ function DataGrid(initialConfig, initialRows = []) {
         return copy(initialConfig);
     }
 
-    function getRows() {
-        return copy(state.rows);
+    function getState() {
+        return state;
     }
 
     function send(message = {}) {
@@ -130,12 +136,28 @@ function DataGrid(initialConfig, initialRows = []) {
         const nextState = handleMessage(initialConfig, state, message.action, message);
         //console.log(nextState);
 
+        //UNDO
+        // pop last item from past
+        // set present to the popped item
+        // unshift the previous present onto future
+
+        //REDO
+        // Shift first item off of future
+        // Set present to the shifted item
+        // Push old present onto end of past
+
+        //Other Action
+        // Push present onto end of past
+        // Set preset to next state
+        // Clear future
+
         state = nextState;
     }
 
     return {
         getInitialConfig,
-        getRows,
+        getRows: _ => state.rows,
+        getState,
         send
     };
 }

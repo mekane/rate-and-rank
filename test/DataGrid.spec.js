@@ -140,16 +140,18 @@ describe('The DataGrid module', () => {
         expect(dataGrid.getRows()).to.not.equal(initialRows);
         expect(dataGrid.getRows()).to.deep.equal(initialRows);
     });
+});
 
-    it('uses a message sending strategy to manipulate the state of the grid', () => {
+describe('Message sending strategy to manipulate the state of the grid', () => {
+    it('does not modify the state if the action has no effect', () => {
         const dataGrid = DataGrid(basicConfig, basicRows());
-        const rows1 = dataGrid.getRows();
+        const state1 = dataGrid.getState();
 
-        dataGrid.send({action: 'test'});
+        dataGrid.send({action: 'no effect'});
 
-        const rows2 = dataGrid.getRows();
+        const state2 = dataGrid.getState();
 
-        expect(rows1).to.not.equal(rows2);
+        expect(state1).to.equal(state2);
     });
 });
 
@@ -298,9 +300,11 @@ describe('Modifying rows', () => {
 
     it(`can apply a function to a field on all columns`, () => {
         const dataGrid = DataGrid(basicConfig, basicRows());
+
         function doubleIndex(oldValue, rowIndex, columnConfig) {
             return 'New A' + (rowIndex * 2);
         }
+
         const action = {action: 'setField', columnName: 'Column A', fn: doubleIndex};
         dataGrid.send(action);
 
@@ -312,4 +316,17 @@ describe('Modifying rows', () => {
         ];
         expect(dataGrid.getRows()).to.deep.equal(expectedRows);
     });
+});
+
+//TODO: add a bunch of tests and code that it only returns a new state if there was an effect
+//TODO: add a test that the exact same (reference) state is returned if there was no effect
+
+describe('Undo and Redo', () => {
+    it('keeps an undo history', () => {
+
+    });
+
+    it('keeps a redo future history');
+
+    it('discards the future when a new action is done');
 });
