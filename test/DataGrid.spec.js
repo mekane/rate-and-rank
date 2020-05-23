@@ -319,10 +319,39 @@ describe('Modifying rows', () => {
         ];
         expect(dataGrid.getRows()).to.deep.equal(expectedRows);
     });
-});
 
-//TODO: add a bunch of tests and code that it only returns a new state if there was an effect
-//TODO: add a test that the exact same (reference) state is returned if there was no effect
+    it('has no effect if a valid field specifier is not present', () => {
+        //Valid specifiers:
+        //rowIndex + columnName + value
+        //rowIndex + values
+        //columnName + value
+        //columnName + fn
+
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'setField'}); //nothing
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', rowIndex: 1}); //no columnName or value
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', rowIndex: 1, columnName: 'Column A'}); //no value
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', value: 'New A'}); // no rowIndex or columnName
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', values: {'Column A': 'New A'}}); // no columnName
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', columnName: 'Column A'}); // no values or fn
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', fn: (a, b, c) => 'whatever'});
+        expect(dataGrid.getState()).to.equal(previousState);
+    })
+});
 
 describe('Undo and Redo', () => {
     it('keeps an undo history', () => {

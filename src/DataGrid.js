@@ -62,10 +62,7 @@ function removeRows(previousState, data) {
         count = 1;
 
     const nextState = copy(previousState);
-
-    if (typeof start === 'number')
-        nextState.splice(start, count);
-
+    nextState.splice(start, count);
     return nextState;
 }
 
@@ -77,11 +74,13 @@ function setField(config, previousState, data) {
 
         if (data.columnName && data.value) {
             rowToChange[data.columnName] = data.value;
+            return nextState;
         }
         else if (data.values) {
             Object.keys(data.values).forEach(columnName => {
                 rowToChange[columnName] = data.values[columnName];
             });
+            return nextState;
         }
     }
     else if (data.columnName) {
@@ -91,16 +90,18 @@ function setField(config, previousState, data) {
             nextState.forEach(row => {
                 row[columnName] = data.value;
             });
+            return nextState;
         }
         else if (data.fn && typeof data.fn === 'function') {
             const columnConfig = config.columns[columnName];
             nextState.forEach((row, i) => {
                 row[columnName] = data.fn(row[columnName], i, columnConfig);
             });
+            return nextState;
         }
     }
 
-    return nextState;
+    return previousState;
 }
 
 /*****************************************************************************
