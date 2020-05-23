@@ -143,23 +143,18 @@ function DataGrid(initialConfig, initialRows = []) {
     function send(message = {}) {
         const action = message.action.toLowerCase();
 
-        //UNDO - put present at beginning of future, pop most recent past state
         if (action === 'undo') {
             if (past.length) {
                 future.unshift(state);
                 state = past.pop();
             }
         }
-
-            //REDO
-            // Shift first item off of future
-            // Set present to the shifted item
-            // Push old present onto end of past
-
-            //Other Action
-            // Push present onto end of past
-            // Set present to next state
-        // Clear future
+        else if (action === 'redo') {
+            if (future.length) {
+                past.push(state);
+                state = future.shift();
+            }
+        }
         else {
             past.push(state);
             state = handleMessage(initialConfig, state, message.action, message);

@@ -390,7 +390,6 @@ describe('Undo and Redo', () => {
         dataGrid.send({action: 'undo'});
 
         expect(dataGrid.getState()).to.equal(previousState);
-
     });
 
     it('keeps a redo future history', () => {
@@ -403,5 +402,51 @@ describe('Undo and Redo', () => {
         expect(dataGrid.getRedoCount()).to.equal(1);
     });
 
-    it('discards the future when a new action is done');
+
+    it('restores the previously undone state when a "redo" action is sent', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        dataGrid.send({action: 'addRow'});
+
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'undo'});
+        expect(dataGrid.getState()).to.not.equal(previousState);
+
+        dataGrid.send({action: 'redo'});
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
+
+    it('has no effect if there are no more history states to restore', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        dataGrid.send({action: 'addRow'});
+
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'undo'});
+        expect(dataGrid.getState()).to.not.equal(previousState);
+
+        dataGrid.send({action: 'redo'});
+        dataGrid.send({action: 'redo'});
+        dataGrid.send({action: 'redo'});
+        dataGrid.send({action: 'redo'});
+        dataGrid.send({action: 'redo'});
+        dataGrid.send({action: 'redo'});
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
+
+    it('discards the future when a new action is done', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        dataGrid.send({action: 'addRow'});
+        dataGrid.send({action: 'addRow'});
+        dataGrid.send({action: 'addRow'});
+        expect(dataGrid.getRedoCount()).to.equal(0);
+
+        dataGrid.send({action: 'undo'});
+        dataGrid.send({action: 'undo'});
+        dataGrid.send({action: 'undo'});
+        expect(dataGrid.getRedoCount()).to.equal(3);
+
+        dataGrid.send({action: 'addRow'});
+        expect(dataGrid.getRedoCount()).to.equal(0);
+    });
 });
