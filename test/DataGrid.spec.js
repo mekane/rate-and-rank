@@ -392,7 +392,26 @@ describe('Reordering rows', () => {
 });
 
 describe('Adding columns via the config', () => {
-    it.skip('can add a column which adds default values to all the rows', () => {
+    it('has no effect if the named column already exists', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'addColumn', column: {name: 'Column A'}});
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
+
+    it('has no effect without at least a name', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'addColumn'});
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'addColumn', column: {}});
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
+
+    it('can add a column which adds default values to all the rows', () => {
         const dataGrid = DataGrid(basicConfig, basicRows());
 
         const column = {name: 'Column D', type: 'string', default: 'new D'};
@@ -414,11 +433,16 @@ describe('Adding columns via the config', () => {
         expect(dataGrid.getState().rows).to.deep.equal(expectedRows);
     });
 
-    it('has no effect if the named column already exists');
+    it('can be undone', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
 
-    it('throws an error if the config is not valid');
+        const column = {name: 'Column D', type: 'string', default: 'new D'};
+        dataGrid.send({action: 'addColumn', column});
+        dataGrid.send({action: 'undo'});
 
-    it('can be undone');
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
 });
 
 describe('Removing columns', () => {

@@ -7,7 +7,7 @@ const schemaValidator = new Validator();
 function handleMessage(state = {}, action = '', data) {
     switch (action.toLowerCase()) {
         case 'addcolumn':
-            return nextState(state, addColumn(state, ))
+            return nextState(state, addColumn(state, data));
         case 'addrow':
             return nextState(state, {'rows': addRow(state.config, state.rows, data)});
         case 'moverow':
@@ -33,6 +33,31 @@ function nextState(previousState, newStateParts) {
         return Object.assign({}, previousState, newStateParts);
 
     return previousState;
+}
+
+function addColumn(previousState, data) {
+    const column = data.column;
+
+    if (!column)
+        return {};
+
+    const columnExists = previousState.config.columns.some(c => c.name === column.name);
+
+    if (column.name && !columnExists) {
+        const config = copy(previousState.config);
+        const rows = copy(previousState.rows);
+
+        config.columns.push(copy(column));
+        rows.forEach(row => {
+            row[column.name] = defaultValueForColumn(column);
+        });
+
+        return {
+            config,
+            rows
+        }
+    }
+    return {};
 }
 
 function addRow(config, previousState, data) {
