@@ -1,0 +1,16 @@
+{
+  "name": "rate-and-rank-server",
+  "version": "1.0.0",
+  "description": "A node server to render views of a DataGrid server-side",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mustache-express": "^1.3.0"
+  }
+}
