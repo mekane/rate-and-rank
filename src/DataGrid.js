@@ -4,16 +4,18 @@ const dataGridConfigSchema = require('../schema/DataGridConfig.schema.json');
 const schemaValidator = new Validator();
 
 
-function handleMessage(config, state = {}, action = '', data) {
+function handleMessage(state = {}, action = '', data) {
     switch (action.toLowerCase()) {
+        case 'addcolumn':
+            return nextState(state, addColumn(state, ))
         case 'addrow':
-            return nextState(state, {'rows': addRow(config, state.rows, data)});
+            return nextState(state, {'rows': addRow(state.config, state.rows, data)});
         case 'moverow':
             return nextState(state, {'rows': moveRow(state.rows, data)});
         case 'removerow':
             return nextState(state, {'rows': removeRows(state.rows, data)});
         case 'setfield':
-            return nextState(state, {'rows': setField(config, state.rows, data)});
+            return nextState(state, {'rows': setField(state.config, state.rows, data)});
         default:
             console.log(`UNKNOWN ACTION ${action}`);
             return state;
@@ -177,7 +179,7 @@ function DataGrid(initialConfig, initialRows = []) {
         }
         else {
             past.push(state);
-            state = handleMessage(initialConfig, state, message.action, message);
+            state = handleMessage(state, message.action, message);
             future = [];
         }
     }
