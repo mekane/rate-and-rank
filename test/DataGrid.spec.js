@@ -392,23 +392,33 @@ describe('Reordering rows', () => {
 });
 
 describe('Adding columns via the config', () => {
-    it('can add a column which adds default values to all the rows', () => {
+    it.skip('can add a column which adds default values to all the rows', () => {
         const dataGrid = DataGrid(basicConfig, basicRows());
 
         const column = {name: 'Column D', type: 'string', default: 'new D'};
         dataGrid.send({action: 'addColumn', column});
 
+        const expectedColumnConfig = [
+            {name: 'Column A'},
+            {name: 'Column B'},
+            {name: 'Column C'},
+            {name: 'Column D', type: 'string', default: 'new D'}
+        ];
         const expectedRows = [
             {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0', 'Column D': 'new D'},
             {'Column A': 'A1', 'Column B': 'B1', 'Column C': 'C1', 'Column D': 'new D'},
             {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2', 'Column D': 'new D'},
             {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3', 'Column D': 'new D'}
         ];
+        expect(dataGrid.getState().config.columns).to.deep.equal(expectedColumnConfig);
+        expect(dataGrid.getState().rows).to.deep.equal(expectedRows);
     });
 
     it('has no effect if the named column already exists');
 
     it('throws an error if the config is not valid');
+
+    it('can be undone');
 });
 
 describe('Removing columns', () => {

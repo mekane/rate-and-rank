@@ -7,23 +7,30 @@ const schemaValidator = new Validator();
 function handleMessage(config, state = {}, action = '', data) {
     switch (action.toLowerCase()) {
         case 'addrow':
-            return nextState(state, 'rows', addRow(config, state.rows, data));
+            return nextState(state, {'rows': addRow(config, state.rows, data)});
         case 'moverow':
-            return nextState(state, 'rows', moveRow(state.rows, data));
+            return nextState(state, {'rows': moveRow(state.rows, data)});
         case 'removerow':
-            return nextState(state, 'rows', removeRows(state.rows, data));
+            return nextState(state, {'rows': removeRows(state.rows, data)});
         case 'setfield':
-            return nextState(state, 'rows', setField(config, state.rows, data));
+            return nextState(state, {'rows': setField(config, state.rows, data)});
         default:
             console.log(`UNKNOWN ACTION ${action}`);
             return state;
     }
 }
 
-function nextState(previousState, propertyName, newState) {
-    if (previousState[propertyName] === newState)
-        return previousState;
-    return Object.assign({}, previousState, {[propertyName]: newState});
+function nextState(previousState, newStateParts) {
+    let stateWasTouched = false;
+    Object.keys(newStateParts).forEach(propertyName => {
+        if (previousState[propertyName] !== newStateParts[propertyName])
+            stateWasTouched = true;
+    });
+
+    if (stateWasTouched)
+        return Object.assign({}, previousState, newStateParts);
+
+    return previousState;
 }
 
 function addRow(config, previousState, data) {
