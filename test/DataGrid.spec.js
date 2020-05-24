@@ -95,8 +95,8 @@ describe('The DataGrid module', () => {
 
         const dataGrid = DataGrid(initialConfig);
         expect(dataGrid).to.be.an('object');
-        expect(dataGrid.getInitialConfig()).to.not.equal(initialConfig);
-        expect(dataGrid.getInitialConfig()).to.deep.equal(initialConfig);
+        expect(dataGrid.getState().config).to.not.equal(initialConfig);
+        expect(dataGrid.getState().config).to.deep.equal(initialConfig);
     });
 
     it(`throws an error if the provided config doesn't conform to the schema`, () => {
@@ -110,7 +110,7 @@ describe('The DataGrid module', () => {
 
     it(`doesn't modify the config object that is passed in`, () => {
         const dataGrid = DataGrid(basicConfig);
-        expect(dataGrid.getInitialConfig()).to.deep.equal(basicConfig);
+        expect(dataGrid.getState().config).to.deep.equal(basicConfig);
     });
 
     it(`can be initialized with rows`, () => {
@@ -389,6 +389,34 @@ describe('Reordering rows', () => {
         dataGrid.send({action: 'moveRow', rowIndex: 1, newIndex: 3});
         expect(dataGrid.getState().rows).to.deep.equal(expectedRows2);
     });
+});
+
+describe('Adding columns via the config', () => {
+    it('can add a column which adds default values to all the rows', () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+
+        const column = {name: 'Column D', type: 'string', default: 'new D'};
+        dataGrid.send({action: 'addColumn', column});
+
+        const expectedRows = [
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0', 'Column D': 'new D'},
+            {'Column A': 'A1', 'Column B': 'B1', 'Column C': 'C1', 'Column D': 'new D'},
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2', 'Column D': 'new D'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3', 'Column D': 'new D'}
+        ];
+    });
+
+    it('has no effect if the named column already exists');
+
+    it('throws an error if the config is not valid');
+});
+
+describe('Removing columns', () => {
+    it('can remove a column');
+
+    it('can change the type of a column');
+
+    it('can change the default value of a column');
 });
 
 describe('Undo and Redo', () => {

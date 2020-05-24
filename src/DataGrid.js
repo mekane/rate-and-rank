@@ -136,13 +136,10 @@ function DataGrid(initialConfig, initialRows = []) {
 
     let past = [];
     let state = {
+        config: copy(initialConfig),
         rows
     };
     let future = [];
-
-    function getInitialConfig() {
-        return copy(initialConfig);
-    }
 
     function getRedoCount() {
         return future.length;
@@ -179,7 +176,6 @@ function DataGrid(initialConfig, initialRows = []) {
     }
 
     return {
-        getInitialConfig,
         getRedoCount,
         getRows: _ => state.rows,
         getState,
