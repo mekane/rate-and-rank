@@ -445,7 +445,7 @@ describe('Adding columns via the config', () => {
     });
 });
 
-describe('Removing columns', () => {
+describe.skip('Removing columns', () => {
     it('can remove a column');
 
     it('can change the type of a column');
