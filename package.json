@@ -4,7 +4,9 @@
   "description": "An application to set up data grids that can easily be ordered and configured",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -b"
+    "build": "./node_modules/.bin/webpack",
+    "test": "mocha -b",
+    "watch": "./node_modules/.bin/webpack --watch"
   },
   "author": "Marty Kane",
   "license": "ISC",
@@ -12,6 +14,8 @@
     "chai": "^4.2.0",
     "deep-freeze": "0.0.1",
     "jsonschema": "^1.2.6",
-    "mocha": "^7.1.2"
+    "mocha": "^7.1.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
   }
 }
