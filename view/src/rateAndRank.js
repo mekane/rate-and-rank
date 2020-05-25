@@ -4,6 +4,17 @@
 import DataGrid from "../../src/DataGrid";
 import waitForDocumentReady from "./documentReady";
 
+const snabbdom = require('snabbdom');
+const patch = snabbdom.init([ // Init patch function with chosen modules
+    require('snabbdom/modules/class').default, // makes it easy to toggle classes
+    require('snabbdom/modules/props').default, // for setting properties on DOM elements
+    require('snabbdom/modules/style').default, // handles styling on elements with support for animations
+    require('snabbdom/modules/eventlisteners').default, // attaches event listeners
+]);
+
+import {DataGrid as DataGridView} from './DataGrid';
+
+
 const config = {
     name: 'Test Grid',
     columns: [
@@ -43,12 +54,17 @@ function initializeRateAndRankApp(init) {
         render(dataGrid.getState());
     }
 
-    window.action = action;
+    window.action = action; //XXX for testing - to enable manual actions in the console
 
     render(dataGrid.getState(), action);
 }
 
+let vnode = document.querySelector('main');
+
 function render(nextState, action) {
-    document.querySelector('body').innerHTML = '<pre>' + JSON.stringify(nextState) + '</pre>';
-    console.log('render', nextState);
+    console.log('render state', nextState);
+    const nextView = DataGridView(nextState, action);
+    console.log('rendered view', nextView);
+
+    vnode = patch(vnode, nextView);
 }
