@@ -1,27 +1,44 @@
 //The component view for a DataGrid
 const h = require('snabbdom/h').default; // helper function for creating vnodes
 
-const gridHeader = columns =>
-    h('div.grid-header', columns.map(gridColumnHeader))
-
-const gridColumnHeader = column =>
-    h('div.grid-header__column', column.name)
-
-const rowContentForColumn = (column, row) =>
-    h('div.grid-body__grid-row-cell', row[column.name])
-
 export function DataGrid(data, action) {
     const columns = data.config.columns;
     const rows = data.rows;
 
-    const gridRows = rows =>
-        h('div.grid-body', rows.map(gridRow))
+    const columnItems = getColumnHeaders(columns);
+    const rowItems = getRowItems(rows, columns);
 
-    const gridRow = row =>
-        h('div.grid-body__grid-row', columns.map(column => rowContentForColumn(column, row)))
+    const numberOfColumns = columns.length + 1;
 
-    return h('div.data-grid', [
-        gridHeader(columns),
-        gridRows(rows)
-    ]);
+    return gridContainer(numberOfColumns, columnItems.concat(rowItems));
+}
+
+function gridContainer(numberOfColumns, children) {
+    const style = {
+        'grid-template-columns': `repeat(${numberOfColumns}, 1fr)`
+    }
+    return h('div.grid', {style}, children);
+}
+
+function getColumnHeaders(columns) {
+    const rankHeader = gridColumnHeader({name: 'Rank', type: 'number'});
+
+    return [rankHeader].concat(columns.map(gridColumnHeader));
+}
+
+function gridColumnHeader(column) {
+    return h('div.grid-column-header', column.name);
+}
+
+function getRowItems(rows, columns) {
+    return rows.flatMap((row, i) => itemsForRow(row, i));
+
+    function itemsForRow(row, i) {
+        const rankItem = h('div.grid-cell', i + 1);
+        return [rankItem].concat(columns.map(column => rowContentForColumn(column, row)));
+    }
+}
+
+function rowContentForColumn(column, row) {
+    return h('div.grid-cell', row[column.name]);
 }
