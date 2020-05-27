@@ -4,7 +4,8 @@ const htmlHelpers = require('../../src/htmlHelpers');
 
 const __rankColumn = {
     name: '__rank_column',
-    type: 'number'
+    type: 'number',
+    isRankColumn: true
 }
 
 export function DataGrid(data, action) {

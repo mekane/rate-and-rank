@@ -47,26 +47,84 @@ function loadInitialData(readyMsg) {
 function initializeRateAndRankApp(init) {
     const dataGrid = DataGrid(init.config, init.data);
 
-    const action = {
-        data: (action, options) => {
-            const msg = {action, ...options};
-            console.log('send', msg);
-            dataGrid.send(msg);
-            render(dataGrid.getState());
-        },
-        ui: handleActionForUI
-    }
+    const action = {};
+    action.data = (actionData) => {
+        console.log(actionData);
+        dataGrid.send(actionData);
+        render(dataGrid.getState(), action);
+    };
+    action.ui = handleActionForUI;
 
     window.action = action; //XXX for testing - to enable manual actions in the console
 
     render(dataGrid.getState(), action);
 }
 
+//TODO: could move all this stuff into a separate GridCell module
 function handleActionForUI(action, event, options) {
+    const column = options.column || {};
+    const actionData = {
+        rowIndex: options.row,
+        columnName: options.column.name
+    };
+
     if (action === 'makeEditable') {
-        console.log('make editable', options);
+        if (column.isRankColumn) {
+            console.log('Edit rank');
+            editNumber(event.target, {action: 'moveRow', ...actionData});
+        }
+        else if (column.name === 'number') {
+            editNumber(event.target, {action: 'setField', ...actionData});
+        }
+        else {
+            editText(event.target, {action: 'setField', ...actionData});
+        }
     }
 }
+
+function editText(element, actionData) {
+    const originalValue = element.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = originalValue;
+
+    function submit() {
+        actionData.value = input.value;
+        console.log('submit ' , actionData);
+        //input.blur();
+        action.data(actionData);
+    }
+
+    function cancel() {
+        input.remove();
+        element.innerHTML = originalValue;
+    }
+
+    //render()
+    element.innerHTML = '';
+    element.append(input);
+    input.select();
+
+    input.addEventListener('blur', cancel);
+    input.addEventListener('keyup', e => {
+        switch (e.key) {
+            case "Enter":
+                submit();
+                break;
+            case "Esc":
+            case "Escape":
+                input.blur();
+                break;
+            default:
+                return;
+        }
+    });
+}
+
+function editNumber(element, actionData) {
+    console.log('Edit number', element, actionData);
+}
+
 
 let vnode = document.querySelector('main');
 
