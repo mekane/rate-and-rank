@@ -47,16 +47,25 @@ function loadInitialData(readyMsg) {
 function initializeRateAndRankApp(init) {
     const dataGrid = DataGrid(init.config, init.data);
 
-    function action(action, data) {
-        const msg = {action, ...data};
-        console.log('send', msg);
-        dataGrid.send(msg);
-        render(dataGrid.getState());
+    const action = {
+        data: (action, options) => {
+            const msg = {action, ...options};
+            console.log('send', msg);
+            dataGrid.send(msg);
+            render(dataGrid.getState());
+        },
+        ui: handleActionForUI
     }
 
     window.action = action; //XXX for testing - to enable manual actions in the console
 
     render(dataGrid.getState(), action);
+}
+
+function handleActionForUI(action, event, options) {
+    if (action === 'makeEditable') {
+        console.log('make editable', options);
+    }
 }
 
 let vnode = document.querySelector('main');

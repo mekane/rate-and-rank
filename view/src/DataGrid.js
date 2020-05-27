@@ -1,5 +1,11 @@
 //The component view for a DataGrid
 const h = require('snabbdom/h').default; // helper function for creating vnodes
+const htmlHelpers = require('../../src/htmlHelpers');
+
+const __rankColumn = {
+    name: '__rank_column',
+    type: 'number'
+}
 
 export function DataGrid(data, action) {
     const columns = data.config.columns;
@@ -11,6 +17,38 @@ export function DataGrid(data, action) {
     const numberOfColumns = columns.length + 1;
 
     return gridContainer(numberOfColumns, columnItems.concat(rowItems));
+
+
+    function getRowItems(rows, columns) {
+        return rows.flatMap((row, i) => itemsForRow(row, i));
+
+        function itemsForRow(row, i) {
+            const rowNumber = i + 1;
+            const rankItem = rowContentForColumn(__rankColumn, row, i);
+            const rowItems = columns.map(column => rowContentForColumn(column, row, i));
+            return [rankItem].concat(rowItems);
+        }
+    }
+
+    function rowContentForColumn(column, row, rowIndex) {
+        const click = e => action.ui('makeEditable', e, {row: rowIndex, column});
+        const data = {
+            on: {
+                click
+            }
+        };
+
+        const className = getClassName(column.name, rowIndex);
+        data['class'] = {[className]: true};
+
+        let content = '';
+        if (column.name === __rankColumn.name)
+            content = rowIndex + 1;
+        else
+            content = row[column.name];
+
+        return h('div.grid-cell', data, content);
+    }
 }
 
 function gridContainer(numberOfColumns, children) {
@@ -30,15 +68,7 @@ function gridColumnHeader(column) {
     return h('div.grid-column-header', column.name);
 }
 
-function getRowItems(rows, columns) {
-    return rows.flatMap((row, i) => itemsForRow(row, i));
-
-    function itemsForRow(row, i) {
-        const rankItem = h('div.grid-cell', i + 1);
-        return [rankItem].concat(columns.map(column => rowContentForColumn(column, row)));
-    }
-}
-
-function rowContentForColumn(column, row) {
-    return h('div.grid-cell', row[column.name]);
+function getClassName(columnName, rowNumber) {
+    const name = htmlHelpers.toCssClassName(columnName);
+    return `${name}${rowNumber}`;
 }
