@@ -14,13 +14,8 @@ export function Row(rowValues, rowIndex, columns) {
         'grid-template-columns': `repeat(${columns.length + 1}, 1fr)`
     }
 
-    const rankItem = RankCell(rowIndex);
-    const rowItems = columns.map(column => rowContentForColumn(column, rowValues, rowIndex));
+    const rankCell = RankCell(rowIndex);
+    const rowCells = columns.map(column => GridCell(column, rowValues[column.name], rowIndex));
 
-    return h('div.row', {style, attrs: draggable}, [rankItem].concat(rowItems));
-
-    function rowContentForColumn(column) {
-        let content = rowValues[column.name];
-        return GridCell(column, content, rowIndex);
-    }
+    return h('div.row', {style, attrs: draggable}, [rankCell].concat(rowCells));
 }
