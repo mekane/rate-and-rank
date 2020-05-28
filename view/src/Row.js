@@ -2,6 +2,7 @@ import {RankCell} from "./RankCell";
 
 const h = require('snabbdom/h').default;
 import {GridCell} from './GridCell';
+import {getGridRowStyles} from "./viewHelpers";
 
 const draggable = {
     draggable: "true"
@@ -10,9 +11,7 @@ const draggable = {
 export function Row(rowValues, rowIndex, columns) {
     console.log(rowValues);
 
-    const style = {
-        'grid-template-columns': `repeat(${columns.length + 1}, 1fr)`
-    }
+    const style = getGridRowStyles(columns.length);
 
     const rankCell = RankCell(rowIndex);
     const rowCells = columns.map(column => GridCell(column, rowValues[column.name], rowIndex));

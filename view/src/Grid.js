@@ -1,6 +1,8 @@
 //The component view for a DataGrid
-const h = require('snabbdom/h').default;
+import {getGridRowStyles} from "./viewHelpers";
 import {Row} from './Row';
+
+const h = require('snabbdom/h').default;
 
 export function Grid(data, action) {
     const columns = data.config.columns;
@@ -12,9 +14,7 @@ export function Grid(data, action) {
 
 
     function getColumnHeaders(columns) {
-        const style = {
-            'grid-template-columns': `repeat(${columns.length + 1}, 1fr)`
-        }
+        const style = getGridRowStyles(columns.length);
 
         const rankHeader = gridColumnHeader({name: 'Rank', type: 'number'});
         const headerItems = [rankHeader].concat(columns.map(gridColumnHeader));
