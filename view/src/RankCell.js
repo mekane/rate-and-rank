@@ -1,5 +1,6 @@
+import {getGridCellClassName} from "./viewHelpers";
+
 const h = require('snabbdom/h').default;
-const htmlHelpers = require('../../src/htmlHelpers');
 
 const column = {
     name: '__rank_column',
@@ -16,14 +17,8 @@ export function RankCell(rowIndex) {
             click
         }
     };
-    const className = getClassName('__rank-column', rowIndex);
+    const className = getGridCellClassName('__rank-column', rowIndex);
     data['class'] = {[className]: true};
 
     return h('div.grid-cell', data, rowIndex + 1);
-}
-
-//TODO: move duplicate code to a helpers file
-function getClassName(columnName, rowNumber) {
-    const name = htmlHelpers.toCssClassName(columnName);
-    return `${name}${rowNumber}`;
 }
