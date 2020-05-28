@@ -403,6 +403,8 @@ describe('Reordering rows', () => {
         dataGrid.send({action: 'moveRow', rowIndex: 1, newIndex: 3});
         expect(dataGrid.getState().rows).to.deep.equal(expectedRows2);
     });
+
+    it(`just moves the row to the end of the list if the newIndex is out of bounds`);
 });
 
 describe('Adding columns via the config', () => {

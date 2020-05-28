@@ -9,8 +9,6 @@ const draggable = {
 }
 
 export function Row(rowValues, rowIndex, columns) {
-    console.log(rowValues);
-
     const style = getGridRowStyles(columns.length);
 
     const rankCell = RankCell(rowIndex);
