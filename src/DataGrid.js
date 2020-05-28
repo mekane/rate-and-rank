@@ -119,7 +119,7 @@ function removeRows(previousState, data) {
 function setField(config, previousState, data) {
     const nextState = copy(previousState);
 
-    if (data.rowIndex) {
+    if (typeof data.rowIndex === 'number') {
         const rowToChange = nextState[data.rowIndex];
 
         if (data.columnName && data.value) {

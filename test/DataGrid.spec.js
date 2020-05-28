@@ -269,6 +269,20 @@ describe('Modifying rows', () => {
         expect(dataGrid.getRows()).to.deep.equal(expectedRows);
     });
 
+    it(`works correctly for row index 0`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const action = {action: 'setField', rowIndex: 0, columnName: 'Column A', value: 'New Value'};
+        dataGrid.send(action);
+
+        const expectedRows = [
+            {'Column A': 'New Value', 'Column B': 'B0', 'Column C': 'C0'},
+            {'Column A': 'A1', 'Column B': 'B1', 'Column C': 'C1'},
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
+        ];
+        expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
+
     it(`can change the value of multiple fields on a single row`, () => {
         const dataGrid = DataGrid(basicConfig, basicRows());
         const action = {
