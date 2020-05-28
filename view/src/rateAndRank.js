@@ -6,6 +6,7 @@ import waitForDocumentReady from "./documentReady";
 
 const snabbdom = require('snabbdom');
 const patch = snabbdom.init([ // Init patch function with chosen modules
+    require('snabbdom/modules/attributes').default, // makes it easy to toggle classes
     require('snabbdom/modules/class').default, // makes it easy to toggle classes
     require('snabbdom/modules/props').default, // for setting properties on DOM elements
     require('snabbdom/modules/style').default, // handles styling on elements with support for animations
@@ -90,7 +91,7 @@ function editText(element, actionData) {
 
     function submit() {
         actionData.value = input.value;
-        console.log('submit ' , actionData);
+        console.log('submit ', actionData);
         //input.blur();
         action.data(actionData);
     }

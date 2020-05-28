@@ -8,26 +8,39 @@ const __rankColumn = {
     isRankColumn: true
 }
 
+const draggable = {
+    draggable: "true"
+}
+
 export function DataGrid(data, action) {
-    const columns = data.config.columns;
-    const rows = data.rows;
+    const columnDefs = data.config.columns;
 
-    const columnItems = getColumnHeaders(columns);
-    const rowItems = getRowItems(rows, columns);
+    const numberOfColumns = columnDefs.length + 1;
 
-    const numberOfColumns = columns.length + 1;
+    const rowStyle = {
+        'grid-template-columns': `repeat(${numberOfColumns}, 1fr)`
+    }
 
-    return gridContainer(numberOfColumns, columnItems.concat(rowItems));
+    const headerRow = getColumnHeaders(columnDefs);
+    const rows = getRowItems(data.rows, columnDefs);
 
+    return h('div.grid', {}, [headerRow].concat(rows));
+
+
+    function getColumnHeaders(columns) {
+        const rankHeader = gridColumnHeader({name: 'Rank', type: 'number'});
+        const headerItems = [rankHeader].concat(columns.map(gridColumnHeader));
+
+        return h('div.column-header-row', {style: rowStyle}, headerItems);
+    }
 
     function getRowItems(rows, columns) {
-        return rows.flatMap((row, i) => itemsForRow(row, i));
+        return rows.map((row, i) => getRow(row, i));
 
-        function itemsForRow(row, i) {
-            const rowNumber = i + 1;
+        function getRow(row, i) {
             const rankItem = rowContentForColumn(__rankColumn, row, i);
             const rowItems = columns.map(column => rowContentForColumn(column, row, i));
-            return [rankItem].concat(rowItems);
+            return h('div.row', {style: rowStyle, attrs: draggable}, [rankItem].concat(rowItems));
         }
     }
 
@@ -50,19 +63,6 @@ export function DataGrid(data, action) {
 
         return h('div.grid-cell', data, content);
     }
-}
-
-function gridContainer(numberOfColumns, children) {
-    const style = {
-        'grid-template-columns': `repeat(${numberOfColumns}, 1fr)`
-    }
-    return h('div.grid', {style}, children);
-}
-
-function getColumnHeaders(columns) {
-    const rankHeader = gridColumnHeader({name: 'Rank', type: 'number'});
-
-    return [rankHeader].concat(columns.map(gridColumnHeader));
 }
 
 function gridColumnHeader(column) {
