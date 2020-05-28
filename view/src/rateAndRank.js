@@ -13,7 +13,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
     require('snabbdom/modules/eventlisteners').default, // attaches event listeners
 ]);
 
-import {DataGrid as DataGridView} from './DataGrid';
+import {Grid as GridView} from './Grid';
 
 
 const config = {
@@ -131,7 +131,7 @@ let vnode = document.querySelector('main');
 
 function render(nextState, action) {
     console.log('render state', nextState);
-    const nextView = DataGridView(nextState, action);
+    const nextView = GridView(nextState, action);
     console.log('rendered view', nextView);
 
     vnode = patch(vnode, nextView);

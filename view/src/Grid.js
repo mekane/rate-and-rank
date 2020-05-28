@@ -2,7 +2,7 @@
 const h = require('snabbdom/h').default;
 import {Row} from './Row';
 
-export function DataGrid(data, action) {
+export function Grid(data, action) {
     const columns = data.config.columns;
 
     const headerRow = getColumnHeaders(columns);
