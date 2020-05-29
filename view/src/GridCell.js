@@ -14,66 +14,55 @@ export function GridCell(column, content, rowIndex) {
     return h('div.grid-cell', data, content);
 }
 
-function makeEditable(column, rowIndex) {
-    if (column.type === 'number') {
-        return function (event) {
-            editNumber(event.target, column, rowIndex);
+function makeEditable(columnDef, rowIndex) {
+    let inputType = 'text';
+    if (columnDef.type === 'number')
+        inputType = 'number';
+
+    return function (event) {
+        const element = event.target;
+        const originalValue = element.textContent;
+        const input = document.createElement('input');
+        input.type = inputType;
+        input.value = originalValue;
+
+        const action = 'setField';
+        const actionData = {
+            action,
+            rowIndex,
+            columnName: columnDef.name
         }
-    }
-    else {
-        return function (event) {
-            editText(event.target, column, rowIndex);
+
+        function submit() {
+            actionData.value = input.value;
+            //input.blur();
+            window.action(actionData);
         }
-    }
-}
 
-
-function editText(element, columnDef, rowIndex) {
-    const originalValue = element.textContent;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = originalValue;
-
-    const action = 'setField';
-    const actionData = {
-        action,
-        rowIndex,
-        columnName: columnDef.name
-    }
-
-    function submit() {
-        actionData.value = input.value;
-        //input.blur();
-        window.action(actionData);
-    }
-
-    function cancel() {
-        input.remove();
-        element.innerHTML = originalValue;
-    }
-
-    //render()
-    element.innerHTML = '';
-    element.append(input);
-    input.select();
-
-    input.addEventListener('blur', cancel);
-    input.addEventListener('keyup', e => {
-        switch (e.key) {
-            case "Enter":
-                submit();
-                break;
-            case "Esc":
-            case "Escape":
-                input.blur();
-                break;
-            default:
-                return;
+        function cancel() {
+            input.remove();
+            element.innerHTML = originalValue;
         }
-    });
-}
 
-function editNumber(element, actionData) {
-    console.log('Edit number', element, actionData);
+        //render()
+        element.innerHTML = '';
+        element.append(input);
+        input.select();
+
+        input.addEventListener('blur', cancel);
+        input.addEventListener('keyup', e => {
+            switch (e.key) {
+                case "Enter":
+                    submit();
+                    break;
+                case "Esc":
+                case "Escape":
+                    input.blur();
+                    break;
+                default:
+                    return;
+            }
+        });
+    }
 }
 

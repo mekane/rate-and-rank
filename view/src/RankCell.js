@@ -32,6 +32,7 @@ function editRank(element, rowIndex) {
     const originalValue = element.textContent;
     const input = document.createElement('input');
     input.type = 'number';
+    input.min = 1;
     input.value = originalValue;
 
     const action = 'moveRow';
@@ -41,7 +42,7 @@ function editRank(element, rowIndex) {
     }
 
     function submit() {
-        actionData.newIndex = input.value;
+        actionData.newIndex = input.value - 1;
         input.blur();
         window.action(actionData);
     }
