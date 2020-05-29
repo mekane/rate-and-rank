@@ -1,4 +1,4 @@
-import {getGridCellClassName} from "./viewHelpers";
+import {getGridCellClassName, preventTab, tabToNextCell} from "./viewHelpers";
 
 const h = require('snabbdom/h').default;
 
@@ -58,6 +58,7 @@ function editRank(element, rowIndex) {
     input.select();
 
     input.addEventListener('blur', cancel);
+    input.addEventListener('keydown', preventTab);
     input.addEventListener('keyup', e => {
         switch (e.key) {
             case "Enter":
@@ -66,6 +67,9 @@ function editRank(element, rowIndex) {
             case "Esc":
             case "Escape":
                 input.blur();
+                break;
+            case "Tab":
+                tabToNextCell(e);
                 break;
             default:
                 return;
