@@ -20,8 +20,8 @@ function makeEditable(columnDef, rowIndex) {
         inputType = 'number';
 
     return function (event) {
-        const element = event.target;
-        const originalValue = element.textContent;
+        const gridCell = event.target;
+        const originalValue = gridCell.textContent;
         const input = document.createElement('input');
         input.type = inputType;
         input.value = originalValue;
@@ -41,12 +41,12 @@ function makeEditable(columnDef, rowIndex) {
 
         function cancel() {
             input.remove();
-            element.innerHTML = originalValue;
+            gridCell.innerHTML = originalValue;
         }
 
         //render()
-        element.innerHTML = '';
-        element.append(input);
+        gridCell.innerHTML = '';
+        gridCell.append(input);
         input.select();
 
         input.addEventListener('blur', cancel);
@@ -61,7 +61,8 @@ function makeEditable(columnDef, rowIndex) {
                     input.blur();
                     break;
                 case "Tab":
-                    tabToNextCell(e);
+                    submit();
+                    tabToNextCell(gridCell, e.shiftKey);
                     break;
                 default:
                     return;

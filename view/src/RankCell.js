@@ -28,8 +28,8 @@ function makeEditable(column, rowIndex) {
 }
 
 
-function editRank(element, rowIndex) {
-    const originalValue = element.textContent;
+function editRank(gridCell, rowIndex) {
+    const originalValue = gridCell.textContent;
     const input = document.createElement('input');
     input.type = 'number';
     input.min = 1;
@@ -49,12 +49,12 @@ function editRank(element, rowIndex) {
 
     function cancel() {
         input.remove();
-        element.innerHTML = originalValue;
+        gridCell.innerHTML = originalValue;
     }
 
     //render()
-    element.innerHTML = '';
-    element.append(input);
+    gridCell.innerHTML = '';
+    gridCell.append(input);
     input.select();
 
     input.addEventListener('blur', cancel);
@@ -69,7 +69,8 @@ function editRank(element, rowIndex) {
                 input.blur();
                 break;
             case "Tab":
-                tabToNextCell(e);
+                submit();
+                tabToNextCell(gridCell, e.shiftKey);
                 break;
             default:
                 return;

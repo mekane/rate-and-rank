@@ -17,14 +17,12 @@ export function preventTab(e) {
 }
 
 /**
- * This assumes the key event is coming from an input field inside a grid cell
- * @param e
+ * This assumes the key event is coming from a grid cell
+ * @param gridCell
  */
-export function tabToNextCell(e) {
-    const currentGridCell = e.currentTarget.parentElement;
-
+export function tabToNextCell(currentGridCell, reverse) {
     let nextEl;
-    if (e.shiftKey)
+    if (reverse)
         nextEl = getPreviousGridCell(currentGridCell);
     else
         nextEl = getNextGridCell(currentGridCell);
