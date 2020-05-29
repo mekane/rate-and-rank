@@ -67,6 +67,7 @@ export function Row(rowValues, rowIndex, columns) {
         if (moveRow.action === 'moveRow') {
             moveRow.newIndex = rowIndex;
 
+            //TODO: remove this after fixing the app logic
             if (moveRow.rowIndex === moveRow.newIndex)
                 return;
 

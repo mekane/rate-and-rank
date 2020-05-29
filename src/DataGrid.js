@@ -94,7 +94,10 @@ function moveRow(previousState, data) {
         return previousState;
 
     let newIndex = parseInt(data.newIndex);
-    if (isNaN(newIndex) || newIndex < 0 || newIndex > previousState.length)
+    if (isNaN(newIndex) || newIndex < 0)
+        return previousState;
+
+    if (newIndex === rowIndex)
         return previousState;
 
     const nextState = copy(previousState);

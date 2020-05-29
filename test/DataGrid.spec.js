@@ -378,7 +378,24 @@ describe('Reordering rows', () => {
         dataGrid.send({action: 'moveRow', rowIndex: 1}); //no new index
         expect(dataGrid.getState()).to.equal(previousState);
 
+        dataGrid.send({action: 'moveRow', rowIndex: -1}); //bad row index
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'moveRow', rowIndex: 99}); //non-existant row index
+        expect(dataGrid.getState()).to.equal(previousState);
+
         dataGrid.send({action: 'moveRow', newIndex: 1}); //no row index
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'moveRow', rowIndex: 0, newIndex: -1}); //bad new index
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
+
+    it(`has no effect if the row index and new index are identical`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'moveRow', rowIndex: 1, newIndex: 1});
         expect(dataGrid.getState()).to.equal(previousState);
     });
 
@@ -404,7 +421,18 @@ describe('Reordering rows', () => {
         expect(dataGrid.getState().rows).to.deep.equal(expectedRows2);
     });
 
-    it(`just moves the row to the end of the list if the newIndex is out of bounds`);
+    it(`just moves the row to the end of the list if the newIndex is higher than max rows`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+
+        const expectedRows = [
+            {'Column A': 'A1', 'Column B': 'B1', 'Column C': 'C1'},
+            {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
+            {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'},
+            {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'}
+        ];
+        dataGrid.send({action: 'moveRow', rowIndex: 0, newIndex: 99});
+        expect(dataGrid.getState().rows).to.deep.equal(expectedRows);
+    });
 });
 
 describe('Adding columns via the config', () => {
