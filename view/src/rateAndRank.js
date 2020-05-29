@@ -15,7 +15,6 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 
 import {Grid as GridView} from './Grid';
 
-
 const config = {
     name: 'Test Grid',
     columns: [
@@ -31,6 +30,11 @@ const data = [
     {'Column A': 'A2', 'Column B': '12', 'Column C': 'C2'},
     {'Column A': 'A3', 'Column B': '13', 'Column C': 'C3'}
 ];
+
+//The root virtual node that the render function hooks into
+let vnode = document.querySelector('main');
+
+let action = _ => _;
 
 waitForDocumentReady(document)
     .then(loadInitialData)
@@ -48,18 +52,36 @@ function loadInitialData(readyMsg) {
 function initializeRateAndRankApp(init) {
     const dataGrid = DataGrid(init.config, init.data);
 
-    const action = msg => {
+    action = msg => {
         console.log(msg);
         dataGrid.send(msg);
         render(dataGrid.getState(), action);
     };
-
     window.action = action; //use global to avoid passing this down to every last component
+
+    initializeAppLevelEvents();
 
     render(dataGrid.getState(), action);
 }
 
-let vnode = document.querySelector('main');
+function initializeAppLevelEvents() {
+    const body = document.querySelector('body');
+    body.addEventListener('keyup', e => {
+        let key = e.key;
+
+        if (e.ctrlKey)
+            key = `ctrl+${key}`;
+
+        switch (key) {
+            case "ctrl+z":
+                undo();
+                break;
+            case "ctrl+Z":
+                redo();
+                break;
+        }
+    });
+}
 
 function render(nextState, action) {
     console.log('render state', nextState);
@@ -67,4 +89,12 @@ function render(nextState, action) {
     console.log('rendered view', nextView);
 
     vnode = patch(vnode, nextView);
+}
+
+function undo() {
+    action({action: 'undo'});
+}
+
+function redo() {
+    action({action: 'redo'});
 }
