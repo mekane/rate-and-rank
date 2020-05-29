@@ -34,10 +34,31 @@
         .grid {
             border-right: 1px solid #ccc;
             border-top: 1px solid #ccc;
+        }
+
+
+        div.row,
+        div.column-header-row {
             display: grid;
         }
 
-        .grid > div {
+        div.row:hover {
+            cursor: move;
+            outline: 2px solid #999;
+            position: relative;
+            z-index: 1;
+        }
+
+        .row.dragging {
+            /* Doesn't do too much useful */
+        }
+
+        .row.drophighlight {
+            background: #dfd;
+        }
+
+        .grid-column-header,
+        .grid-cell {
             border-bottom: 1px solid #ccc;
             border-left: 1px solid #ccc;
             padding: 4px;

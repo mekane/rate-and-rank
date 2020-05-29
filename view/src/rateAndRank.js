@@ -6,30 +6,35 @@ import waitForDocumentReady from "./documentReady";
 
 const snabbdom = require('snabbdom');
 const patch = snabbdom.init([ // Init patch function with chosen modules
+    require('snabbdom/modules/attributes').default, // makes it easy to toggle classes
     require('snabbdom/modules/class').default, // makes it easy to toggle classes
     require('snabbdom/modules/props').default, // for setting properties on DOM elements
     require('snabbdom/modules/style').default, // handles styling on elements with support for animations
     require('snabbdom/modules/eventlisteners').default, // attaches event listeners
 ]);
 
-import {DataGrid as DataGridView} from './DataGrid';
-
+import {Grid as GridView} from './Grid';
 
 const config = {
     name: 'Test Grid',
     columns: [
         {name: 'Column A'},
-        {name: 'Column B'},
+        {name: 'Column B', type: 'number'},
         {name: 'Column C'}
     ]
 };
 
 const data = [
-    {'Column A': 'A0', 'Column B': 'B0', 'Column C': 'C0'},
-    {'Column A': 'A1', 'Column B': 'B1', 'Column C': 'C1'},
-    {'Column A': 'A2', 'Column B': 'B2', 'Column C': 'C2'},
-    {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
+    {'Column A': 'A0', 'Column B': '10', 'Column C': 'C0'},
+    {'Column A': 'A1', 'Column B': '11', 'Column C': 'C1'},
+    {'Column A': 'A2', 'Column B': '12', 'Column C': 'C2'},
+    {'Column A': 'A3', 'Column B': '13', 'Column C': 'C3'}
 ];
+
+//The root virtual node that the render function hooks into
+let vnode = document.querySelector('main');
+
+let action = _ => _;
 
 waitForDocumentReady(document)
     .then(loadInitialData)
@@ -47,91 +52,49 @@ function loadInitialData(readyMsg) {
 function initializeRateAndRankApp(init) {
     const dataGrid = DataGrid(init.config, init.data);
 
-    const action = {};
-    action.data = (actionData) => {
-        console.log(actionData);
-        dataGrid.send(actionData);
+    action = msg => {
+        console.log(msg);
+        dataGrid.send(msg);
         render(dataGrid.getState(), action);
     };
-    action.ui = handleActionForUI;
+    window.action = action; //use global to avoid passing this down to every last component
 
-    window.action = action; //XXX for testing - to enable manual actions in the console
+    initializeAppLevelEvents();
 
     render(dataGrid.getState(), action);
 }
 
-//TODO: could move all this stuff into a separate GridCell module
-function handleActionForUI(action, event, options) {
-    const column = options.column || {};
-    const actionData = {
-        rowIndex: options.row,
-        columnName: options.column.name
-    };
+function initializeAppLevelEvents() {
+    const body = document.querySelector('body');
+    body.addEventListener('keyup', e => {
+        let key = e.key;
 
-    if (action === 'makeEditable') {
-        if (column.isRankColumn) {
-            console.log('Edit rank');
-            editNumber(event.target, {action: 'moveRow', ...actionData});
-        }
-        else if (column.name === 'number') {
-            editNumber(event.target, {action: 'setField', ...actionData});
-        }
-        else {
-            editText(event.target, {action: 'setField', ...actionData});
-        }
-    }
-}
+        if (e.ctrlKey)
+            key = `ctrl+${key}`;
 
-function editText(element, actionData) {
-    const originalValue = element.textContent;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = originalValue;
-
-    function submit() {
-        actionData.value = input.value;
-        console.log('submit ' , actionData);
-        //input.blur();
-        action.data(actionData);
-    }
-
-    function cancel() {
-        input.remove();
-        element.innerHTML = originalValue;
-    }
-
-    //render()
-    element.innerHTML = '';
-    element.append(input);
-    input.select();
-
-    input.addEventListener('blur', cancel);
-    input.addEventListener('keyup', e => {
-        switch (e.key) {
-            case "Enter":
-                submit();
+        switch (key) {
+            case "ctrl+z":
+                undo();
                 break;
-            case "Esc":
-            case "Escape":
-                input.blur();
+            case "ctrl+Z":
+                redo();
                 break;
-            default:
-                return;
         }
     });
 }
 
-function editNumber(element, actionData) {
-    console.log('Edit number', element, actionData);
-}
-
-
-let vnode = document.querySelector('main');
-
 function render(nextState, action) {
     console.log('render state', nextState);
-    const nextView = DataGridView(nextState, action);
+    const nextView = GridView(nextState, action);
     console.log('rendered view', nextView);
 
     vnode = patch(vnode, nextView);
+}
+
+function undo() {
+    action({action: 'undo'});
+}
+
+function redo() {
+    action({action: 'redo'});
 }
