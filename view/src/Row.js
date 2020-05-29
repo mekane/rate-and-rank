@@ -16,8 +16,9 @@ export function Row(rowValues, rowIndex, columns) {
         },
         on: {
             dragstart: initializeDragRow,
-            dragenter: allowRowDrops,
+            dragenter: dragEnter,
             dragover: allowRowDrops,
+            dragleave: dragLeave,
             drop: rowDropped
         },
         style: getGridRowStyles(columns.length)
@@ -37,30 +38,53 @@ export function Row(rowValues, rowIndex, columns) {
         console.log('start dragging row ' + rowIndex, rowData);
     }
 
-    function allowRowDrops(event) {
-        const dt = event.dataTransfer;
-
-        if (dt.effectAllowed === 'move' && dt.types.includes(rowDataType)) {
+    function dragEnter(event) {
+        if (couldDropHere(event.dataTransfer)) {
             event.preventDefault();
+            event.currentTarget.classList.add('drophighlight');
         }
     }
 
-    //TODO: use dragenter and dragleave to highlight / show space for rows
+    function allowRowDrops(event) {
+        if (couldDropHere(event.dataTransfer))
+            event.preventDefault();
+    }
+
+    function couldDropHere(dt) {
+        return (dt.effectAllowed === 'move' && dt.types.includes(rowDataType));
+    }
+
+    function dragLeave(event) {
+        event.currentTarget.classList.remove('drophighlight');
+    }
 
     function rowDropped(event) {
-        const dataString = event.dataTransfer.getData(rowDataType);
         event.preventDefault();
 
+        event.currentTarget.classList.remove('drophighlight');
+        const moveRow = getDraggingRowFromData(event);
+
+        if (moveRow.action === 'moveRow') {
+            moveRow.newIndex = rowIndex;
+
+            if (moveRow.rowIndex === moveRow.newIndex)
+                return;
+
+            window.action(moveRow);
+        }
+    }
+
+    function getDraggingRowFromData(event) {
+        const dataString = event.dataTransfer.getData(rowDataType);
+
         let moveRow = {};
+
         try {
             moveRow = JSON.parse(dataString);
         } catch (err) {
             console.log('Error processing row drop ' + err);
         }
 
-        if (moveRow.action === 'moveRow') {
-            moveRow.newIndex = rowIndex;
-            window.action(moveRow);
-        }
+        return moveRow;
     }
 }
