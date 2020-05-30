@@ -39,7 +39,6 @@ export function Row(rowValues, rowIndex, columns) {
 
     function allowRowDrops(event) {
         if (couldDropHere(event.dataTransfer)) {
-            console.log('could drop here');
             event.preventDefault();
             event.currentTarget.classList.add('drophighlight');
         }
