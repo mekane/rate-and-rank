@@ -16,7 +16,7 @@ export function Row(rowValues, rowIndex, columns) {
         },
         on: {
             dragstart: initializeDragRow,
-            dragenter: dragEnter,
+            dragenter: allowRowDrops,
             dragover: allowRowDrops,
             dragleave: dragLeave,
             drop: rowDropped
@@ -35,19 +35,13 @@ export function Row(rowValues, rowIndex, columns) {
 
         dt.setData(rowDataType, rowData);
         dt.effectAllowed = 'move';
-        console.log('start dragging row ' + rowIndex, rowData);
     }
 
-    function dragEnter(event) {
+    function allowRowDrops(event) {
         if (couldDropHere(event.dataTransfer)) {
             event.preventDefault();
             event.currentTarget.classList.add('drophighlight');
         }
-    }
-
-    function allowRowDrops(event) {
-        if (couldDropHere(event.dataTransfer))
-            event.preventDefault();
     }
 
     function couldDropHere(dt) {
@@ -73,6 +67,9 @@ export function Row(rowValues, rowIndex, columns) {
 
     function getDraggingRowFromData(event) {
         const dataString = event.dataTransfer.getData(rowDataType);
+
+        if (dataString === '')
+            return {}; //ignore non-row drops
 
         let moveRow = {};
 
