@@ -32,6 +32,7 @@ function makeImageCellContent(imgSrc) {
             attrs: {
                 src: imgSrc,
             }
+            //TODO: try using snabbdom hooks to check for load error and modify the element
         };
         const img = h('img', imgData);
         children.push(img);

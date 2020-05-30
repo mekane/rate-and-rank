@@ -69,6 +69,9 @@ export function Row(rowValues, rowIndex, columns) {
     function getDraggingRowFromData(event) {
         const dataString = event.dataTransfer.getData(rowDataType);
 
+        if (dataString === '')
+            return {}; //ignore non-row drops
+
         let moveRow = {};
 
         try {
