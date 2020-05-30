@@ -37,7 +37,11 @@ function makeImageCellContent(imgSrc) {
         children.push(img);
     }
     else {
-        const dropTargetData = {};
+        const dropTargetData = {
+            on: {
+                click: showFileChooser
+            }
+        };
         const dropTarget = h('div.image-drop-target', dropTargetData, 'Click or Drop Image Here');
         children.push(dropTarget);
     }
@@ -49,6 +53,9 @@ function makeImageCellContent(imgSrc) {
         },
         style: {
             display: 'none'
+        },
+        on: {
+            change: fileChosen
         }
     };
     const uploader = h('input', uploaderData);
@@ -62,9 +69,26 @@ function isValid(string) {
     return string && string.length;
 }
 
+function showFileChooser(e) {
+    const parent = e.target.parentElement;
+    const fileChooser = parent.querySelector('input[type="file"]');
+    fileChooser.click();
+}
+
+function fileChosen(e) {
+    const file = e.target.files[0];
+    saveImageDataFromFile(file);
+}
+
+function saveImageDataFromFile(file) {
+    console.log('save', file);
+}
+
 function makeEditable(columnDef, rowIndex) {
-    if (columnDef.type === 'image')
+    if (columnDef.type === 'image') {
+        console.log('cell clicked');
         return; //TODO: implement
+    }
 
     let inputType = 'text';
     if (columnDef.type === 'number')
