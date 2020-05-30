@@ -16,7 +16,7 @@ export function Row(rowValues, rowIndex, columns) {
         },
         on: {
             dragstart: initializeDragRow,
-            dragenter: dragEnter,
+            dragenter: allowRowDrops,
             dragover: allowRowDrops,
             dragleave: dragLeave,
             drop: rowDropped
@@ -37,16 +37,12 @@ export function Row(rowValues, rowIndex, columns) {
         dt.effectAllowed = 'move';
     }
 
-    function dragEnter(event) {
+    function allowRowDrops(event) {
         if (couldDropHere(event.dataTransfer)) {
+            console.log('could drop here');
             event.preventDefault();
             event.currentTarget.classList.add('drophighlight');
         }
-    }
-
-    function allowRowDrops(event) {
-        if (couldDropHere(event.dataTransfer))
-            event.preventDefault();
     }
 
     function couldDropHere(dt) {

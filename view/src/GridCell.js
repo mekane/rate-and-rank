@@ -13,8 +13,6 @@ export function GridCell(column, rawContent, rowIndex) {
 
     const content = cellContent(column.type, rawContent);
 
-    if (column.type === 'image')
-        console.log('make image for ' + column.name, rawContent);
     return h('div.grid-cell', data, content);
 }
 
