@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+    <title>Image Test</title>
+    <style>
+        #container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            place-items: center center;
+            height: 90vh;
+        }
+
+        #preview {
+            border: 1px solid #ccc;
+            margin: 40px auto;
+            padding: 8px;
+        }
+
+        #imageInput {
+            width: 400px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            text-align: center;
+            line-height: 200px;
+        }
+
+        #imageInput.highlight {
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div class="spacer"></div>
+    <div id="preview">Awaiting Preview Here</div>
+    <div class="spacer"></div>
+
+    <div class="spacer"></div>
+    <div>
+        <div id="imageInput">Drag Images Here</div>
+        <input type="file" accept="image/*" id="fileInput" style="display: none;">
+    </div>
+    <div class="spacer"></div>
+</div>
+
+<script type="text/javascript">
+    const $ = document.querySelector.bind(document);
+
+    //TODO: add this to the main app for preventing accidental image drags
+    window.addEventListener('beforeunload', (event) => {
+        //event.preventDefault();
+        //event.returnValue = 'foo';
+    });
+
+    const preview = $('#preview');
+    const fileInput = $('#fileInput');
+    const imageInput = $('#imageInput');
+
+    fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        saveImageDataFromFile(file);
+    });
+
+    //Dropping stuff on image listener
+    imageInput.addEventListener('click', e => fileInput.click());
+    imageInput.addEventListener('dragenter', indicateDropAllowed);
+    imageInput.addEventListener('dragover', indicateDropAllowed);
+    imageInput.addEventListener('dragleave', unHighlight);
+    imageInput.addEventListener('drop', e => {
+        e.preventDefault();
+        unHighlight(e);
+        processDataTransfer(e.dataTransfer);
+    });
+    imageInput.addEventListener('paste', e => {
+        console.log('paste');
+        processDataTransfer(e.clipboardData);
+    });
+
+    function processDataTransfer(dataTransfer) {
+        const types = [...dataTransfer.types];
+
+        const hasFile = types.includes('Files');
+        const hasLink = types.includes('text/uri-list');
+        const hasText = types.includes('text/plain');
+
+        if (hasFile) {
+            const files = [...dataTransfer.files];
+            saveImageDataFromFile(files[0]);
+        }
+        else if (hasLink) {
+            const link = dataTransfer.getData('text/uri-list');
+            saveImageDataFromLink(link);
+        }
+        else if (hasText) {
+            const text = dataTransfer.getData('text/plain');
+            saveImageDataFromLink(text);
+        }
+        else {
+            console.log('No data found in dropped item');
+        }
+    }
+
+    function indicateDropAllowed(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('highlight');
+    }
+
+    function unHighlight(e) {
+        e.currentTarget.classList.remove('highlight');
+    }
+
+    function saveImageDataFromFile(file) {
+        let reader = new FileReader()
+        reader.readAsDataURL(file);
+        reader.addEventListener('load', e => setColumnData(reader.result));
+    }
+
+    function saveImageDataFromLink(url) {
+        const image = new Image();
+        image.crossOrigin = "anonymous";
+
+        image.onload = function () {
+            console.log('loaded image from ' + url);
+            const canvas = document.createElement('canvas');
+            canvas.width = this.naturalWidth; // or 'width' if you want a special/scaled size
+            canvas.height = this.naturalHeight; // or 'height' if you want a special/scaled size
+
+            canvas.getContext('2d').drawImage(this, 0, 0);
+
+            setColumnData(canvas.toDataURL('image/png'));
+        };
+
+        image.src = url;
+    }
+
+    function setColumnData(imageData) {
+        console.log('image data', imageData);
+        loadPreviewAreaWith(imageData);
+        //TODO: actually fire set action
+    }
+
+    function loadPreviewAreaWith(imgSrcUrl) {
+        let img = document.createElement('img')
+        img.src = imgSrcUrl;
+        preview.innerHTML = '';
+        preview.appendChild(img)
+    }
+
+    //TODO: prevent body from accepting dropped images and replacing itself
+    //TODO: paste
+</script>
+
+</body>
+</html>

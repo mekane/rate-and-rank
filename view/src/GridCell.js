@@ -2,7 +2,7 @@ import {getGridCellClassName, preventTab, tabToNextCell} from "./viewHelpers";
 
 const h = require('snabbdom/h').default;
 
-export function GridCell(column, content, rowIndex) {
+export function GridCell(column, rawContent, rowIndex) {
     const data = {
         on: {
             click: makeEditable(column, rowIndex)
@@ -11,10 +11,63 @@ export function GridCell(column, content, rowIndex) {
     const className = getGridCellClassName(column.name, rowIndex);
     data['class'] = {[className]: true};
 
+    const content = cellContent(column.type, rawContent);
+
+    if (column.type === 'image')
+        console.log('make image for ' + column.name, rawContent);
     return h('div.grid-cell', data, content);
 }
 
+function cellContent(columnType, rawContent) {
+    if (columnType === 'image') {
+        return makeImageCellContent(rawContent);
+    }
+    else
+        return rawContent;
+}
+
+function makeImageCellContent(imgSrc) {
+    const children = [];
+
+    if (isValid(imgSrc)) {
+        const imgData = {
+            attrs: {
+                src: imgSrc,
+            }
+        };
+        const img = h('img', imgData);
+        children.push(img);
+    }
+    else {
+        const dropTargetData = {};
+        const dropTarget = h('div.image-drop-target', dropTargetData, 'Click or Drop Image Here');
+        children.push(dropTarget);
+    }
+
+    const uploaderData = {
+        attrs: {
+            type: 'file',
+            accept: 'image/*'
+        },
+        style: {
+            display: 'none'
+        }
+    };
+    const uploader = h('input', uploaderData);
+    children.push(uploader);
+
+    return children;
+}
+
+//TODO: could improve this. Add check for "data:image/..." or "http://" at beginning
+function isValid(string) {
+    return string && string.length;
+}
+
 function makeEditable(columnDef, rowIndex) {
+    if (columnDef.type === 'image')
+        return; //TODO: implement
+
     let inputType = 'text';
     if (columnDef.type === 'number')
         inputType = 'number';

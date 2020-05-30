@@ -35,7 +35,6 @@ export function Row(rowValues, rowIndex, columns) {
 
         dt.setData(rowDataType, rowData);
         dt.effectAllowed = 'move';
-        console.log('start dragging row ' + rowIndex, rowData);
     }
 
     function dragEnter(event) {
