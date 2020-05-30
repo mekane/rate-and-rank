@@ -45,6 +45,7 @@ export function GridCell(column, rawContent, rowIndex) {
                     dragover: allowImageDrops,
                     dragleave: unHighlight,
                     drop: [handleImageDrop, rowIndex, column.name]
+                    //paste: [handleImagePaste, rowIndex, column.name]
                 }
             };
             const dropTarget = h('div.image-drop-target', dropTargetData, 'Drop Image or Click Here');
@@ -100,6 +101,12 @@ function handleImageDrop(rowIndex, columnName, e) {
     e.preventDefault();
     unHighlight(e);
     processDataTransfer(e.dataTransfer)
+        .then(imageData => saveImageData(rowIndex, columnName, imageData));
+}
+
+function handleImagePaste(rowIndex, columnName, e) {
+    console.log('paste');
+    processDataTransfer(e.clipboardData)
         .then(imageData => saveImageData(rowIndex, columnName, imageData));
 }
 
