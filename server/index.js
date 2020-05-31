@@ -1,40 +1,8 @@
-const express = require('express');
-const app = express();
-app.engine('mustache', require('mustache-express')());
-app.set('view engine', 'mustache')
 const port = 8666;
+const fileStore = require('session-file-store');
+const Server = require('Server');
 
-const DataGrid = require('../src/DataGrid');
+/* Placeholder user store for development */
+const userStore = require('./hardcoded-user-store');
 
-const activeGrids = {
-    1: DataGrid({name: 'Test Grid 1', columns: [{name: 'Name'}, {name: 'Description'}]}),
-    2: DataGrid({name: 'Another Grid 2', columns: [{name: 'Test2'}]}),
-    3: DataGrid({name: 'Grid Boom 3', columns: [{name: 'Test3'}]})
-};
-
-app.get('/', showHomepage);
-app.get('/grid', listActiveGrids);
-app.get('/grid/:id', showGrid);
-app.listen(port, () => console.log(`Rate and Rank app listening on port ${port}!`));
-
-function showHomepage(req, res) {
-    res.render('home', {title: 'Home'});
-}
-
-function listActiveGrids(req, res) {
-    const grids = [];
-
-    Object.keys(activeGrids).forEach(id => {
-        grids.push({id, name: activeGrids[id].getState().config.name});
-    });
-
-    res.render('list', {title: 'All Data Grids', grids});
-}
-
-function showGrid(req, res) {
-    const gridId = req.params['id'];
-    const grid = activeGrids[gridId];
-    const gridName = grid.getState().config.name;
-
-    res.render('grid', {title: gridName, gridName, grid});
-}
+Server.initialize(port,)
