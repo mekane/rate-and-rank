@@ -1,8 +1,17 @@
 const port = 8666;
-const fileStore = require('session-file-store');
-const Server = require('Server');
+const session = require('express-session')
+const FileStore = require('session-file-store')(session);
+const Server = require('./Server');
 
 /* Placeholder user store for development */
 const userStore = require('./hardcoded-user-store');
 
-Server.initialize(port,)
+const sessionOptions = {
+    secret: '6fe978e29217c19e939da7e95453',
+    resave: false,
+    saveUninitialized: true,
+    store: new FileStore({ttl: 86400})
+};
+const sessionMiddleware = session(sessionOptions);
+
+Server.initialize(port, sessionMiddleware, userStore);
