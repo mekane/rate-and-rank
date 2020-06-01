@@ -1,0 +1,13 @@
+{{> pageStart }}
+
+<h1>Login</h1>
+{{#status}}
+    <div class="message{{error}}">{{ message }}</div>
+{{/status}}
+<form action="login" method="POST">
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="submit">
+</form>
+
+{{> pageEnd }}
