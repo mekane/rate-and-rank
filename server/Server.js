@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const DataGrid = require('../src/DataGrid');
+
 //for accepts-content matching
 const html = 'text/html';
 const json = 'application/json';
@@ -60,6 +62,18 @@ const routes = [
         path: '/grid',
         description: 'Lists grids for the current user',
         handler: getListOfGridsForUser
+    },
+    {
+        method: 'get',
+        path: '/grid/new',
+        description: 'Show a form for creating a new grid',
+        handler: getNewGridForm
+    },
+    {
+        method: 'post',
+        path: '/grid/new',
+        description: 'Post config and initial row data to create a new grid',
+        handler: postNewGrid
     },
     {
         method: 'get',
@@ -193,7 +207,7 @@ function getListOfGridsForUser(req, res) {
         return enforceLoggedIn(req, res)
     }
 
-    const grids = getGridsFromSession(req.session);
+    const grids = getGridNamesFromSession(req.session);
 
     res.format({
         html: _ => {
@@ -213,7 +227,7 @@ function getGrid(req, res) {
     }
 
     const gridId = req.params['id'];
-    const grid = activeGrids[gridId];
+    const grid = restoreGridFromSession(req.session, gridId);
     const gridName = grid.getState().config.name;
 
     res.format({
@@ -228,12 +242,68 @@ function getGrid(req, res) {
     });
 }
 
+function getNewGridForm(req, res) {
+    if (!isLoggedIn(req)) {
+        return enforceLoggedIn(req, res)
+    }
+
+    logRequest(req, html, 'Show new grid form');
+    res.render('newGridForm', {title: 'New Grid Form'});
+    //TODO: do something sane for JSON?
+}
+
+function postNewGrid(req, res) {
+    if (!isLoggedIn(req)) {
+        return enforceLoggedIn(req, res)
+    }
+
+    const config = JSON.parse(req.body.config);
+    const rows = JSON.parse(req.body.rows || '[]');
+
+    logRequest(req, html, 'Got new form post data');
+    console.log(config);
+    console.log(rows);
+
+    const grid = DataGrid(config, rows);
+    console.log(grid.getState());
+
+    const newId = saveGridToSession(req.session, grid);
+
+    res.send('Saved grid under id ' + newId);
+}
+
 function logRequest(req, contentType, message) {
     console.log(`${req.method} ${req.path} ${contentType} - ${message}`);
 }
 
-function getGridsFromSession(session) {
-    return [];
+function getGridNamesFromSession(session, gridName) {
+    const grids = session.grids || {};
+    return Object.keys(grids).map(id => ({
+        id,
+        name: grids[id].config.name
+    }));
+}
+
+function restoreGridFromSession(session, gridId) {
+    if (session.grids) {
+        const gridData = session.grids[gridId];
+        return DataGrid(gridData.config, gridData.rows);
+    }
+}
+
+function saveGridToSession(session, gridObj, gridId) {
+    let id = gridId;
+    if (typeof gridId === 'undefined') {
+        id = 'g' + Date.now();
+    }
+
+    if (typeof session.grids !== 'object') {
+        session.grids = {};
+    }
+
+    session.grids[id] = gridObj.getState();
+
+    return id;
 }
 
 module.exports = {
