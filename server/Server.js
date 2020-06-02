@@ -82,6 +82,12 @@ const routes = [
         method: 'get',
         description: 'Show a grid app or get grid state',
         handler: getGrid
+    },
+    {
+        path: '/grid/:id/action',
+        method: 'put',
+        description: 'Send an action to a grid',
+        handler: putGridAction
     }
 ];
 
@@ -273,6 +279,28 @@ function postNewGrid(req, res) {
 
     return res.send('Saved grid under id ' + newId); //TODO: better response here
     //TODO: JSON response
+}
+
+function putGridAction(req, res) {
+    if (!isLoggedIn(req)) {
+        return enforceLoggedIn(req, res)
+    }
+
+    const gridId = req.params['id'];
+    const grid = restoreGridFromSession(req.session, gridId);
+    const action = JSON.parse(req.body.action);
+    grid.send(action);
+    saveGridToSession(req.session, grid, gridId);
+
+    return res.format({
+        html: _ => {
+            //TODO: something for html?
+        },
+        json: _ => {
+            logRequest(req, json, `sent action to ${gridId}: ${action}`);
+            res.json(grid.getState());
+        }
+    });
 }
 
 function send404(req, res, next) {
