@@ -18,14 +18,16 @@ function initialize(port, injectedSessionHandler, injectedUserRepo) {
     userRepository = injectedUserRepo;
 
     const app = express();
+    app.engine('mustache', require('mustache-express')());
+    app.set('view engine', 'mustache');
+
     app.use(express.static('public'));
     app.use(injectedSessionHandler);
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
-    app.engine('mustache', require('mustache-express')());
-    app.set('view engine', 'mustache');
 
     setupRouting(app);
+    app.use(send404); //
 
     app.listen(port, () => console.log(`Rate and Rank app listening on port ${port}!`));
     initialized = true;
@@ -34,50 +36,50 @@ function initialize(port, injectedSessionHandler, injectedUserRepo) {
 const loginpath = '/login';
 const routes = [
     {
-        method: 'get',
         path: loginpath,
+        method: 'get',
         description: 'Show login page',
         handler: getLogin
     },
     {
-        method: 'post',
         path: loginpath,
+        method: 'post',
         description: 'Send a login request',
         handler: postLogin
     },
     {
-        method: 'get',
         path: '/logout',
+        method: 'get',
         description: 'Remove session information',
         handler: getLogout
     },
     {
-        method: 'get',
         path: '/',
+        method: 'get',
         description: 'Show home page / lists all available routes',
         handler: getHome
     },
     {
-        method: 'get',
         path: '/grid',
+        method: 'get',
         description: 'Lists grids for the current user',
         handler: getListOfGridsForUser
     },
     {
-        method: 'get',
         path: '/grid/new',
+        method: 'get',
         description: 'Show a form for creating a new grid',
         handler: getNewGridForm
     },
     {
-        method: 'post',
         path: '/grid/new',
+        method: 'post',
         description: 'Post config and initial row data to create a new grid',
         handler: postNewGrid
     },
     {
-        method: 'get',
         path: '/grid/:id',
+        method: 'get',
         description: 'Show a grid app or get grid state',
         handler: getGrid
     }
@@ -106,7 +108,7 @@ function enforceLoggedIn(req, res) {
 function getLogin(req, res) {
     const loggedin = isLoggedIn(req);
 
-    res.format({
+    return res.format({
         html: _ => {
             if (loggedin) {
                 logRequest(req, html, 'logged in - redirect to home');
@@ -137,7 +139,7 @@ function getLogout(req, res) {
         });
     }
     res.clearCookie('sid');
-    res.format({
+    return res.format({
         html: _ => res.render('login', {title: 'Login', status: {message: 'logout'}}),
         json: _ => res.json({loggedin: false})
     });
@@ -150,7 +152,7 @@ function postLogin(req, res) {
     const user = userRepository.getUser(username, password);
 
     if (user == null) {
-        res.format({
+        return res.format({
             html: _ => {
                 logRequest(req, html, 'bad login - show error page');
                 res.render('login', {
@@ -167,7 +169,7 @@ function postLogin(req, res) {
     else {
         req.session.loggedin = true;
         req.session.username = username;
-        res.format({
+        return res.format({
             html: _ => {
                 logRequest(req, html, 'successful login - redirect to homepage');
                 res.redirect('/');
@@ -209,7 +211,7 @@ function getListOfGridsForUser(req, res) {
 
     const grids = getGridNamesFromSession(req.session);
 
-    res.format({
+    return res.format({
         html: _ => {
             logRequest(req, html, `show grid list page`);
             res.render('list', {title: 'All Data Grids', grids});
@@ -230,7 +232,7 @@ function getGrid(req, res) {
     const grid = restoreGridFromSession(req.session, gridId);
     const gridName = grid.getState().config.name;
 
-    res.format({
+    return res.format({
         html: _ => {
             logRequest(req, html, `show grid application page for grid ${gridId}`);
             res.render('grid', {title: gridName, gridName});
@@ -248,7 +250,7 @@ function getNewGridForm(req, res) {
     }
 
     logRequest(req, html, 'Show new grid form');
-    res.render('newGridForm', {title: 'New Grid Form'});
+    return res.render('newGridForm', {title: 'New Grid Form'});
     //TODO: do something sane for JSON?
 }
 
@@ -269,13 +271,20 @@ function postNewGrid(req, res) {
 
     const newId = saveGridToSession(req.session, grid);
 
-    res.send('Saved grid under id ' + newId);
+    return res.send('Saved grid under id ' + newId); //TODO: better response here
+    //TODO: JSON response
 }
 
+function send404(req, res, next) {
+    return res.status(404).render('pageNotFound', {title: "Page Not Found", path: req.path});
+}
+
+/** -------- Utils -------- **/
 function logRequest(req, contentType, message) {
     console.log(`${req.method} ${req.path} ${contentType} - ${message}`);
 }
 
+/** -------- Grid Persistance -------- **/
 function getGridNamesFromSession(session, gridName) {
     const grids = session.grids || {};
     return Object.keys(grids).map(id => ({
