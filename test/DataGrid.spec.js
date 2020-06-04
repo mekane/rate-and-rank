@@ -100,13 +100,8 @@ describe('The DataGrid module', () => {
         expect(dataGrid.getState().config).to.deep.equal(initialConfig);
     });
 
-    it(`throws an error if the provided config doesn't conform to the schema`, () => {
-        function initWithBadConfig() {
-            const invalidConfig = {};
-            return DataGrid(invalidConfig);
-        }
-
-        expect(initWithBadConfig).to.throw(/Invalid config/);
+    it(`returns null if the provided config doesn't conform to the schema`, () => {
+        expect(DataGrid({})).to.equal(null);
     });
 
     it(`doesn't modify the config object that is passed in`, () => {
@@ -594,4 +589,46 @@ describe('Undo and Redo', () => {
         dataGrid.send({action: 'addRow'});
         expect(dataGrid.getRedoCount()).to.equal(0);
     });
+});
+
+describe('Serialize to JSON', () => {
+    it('has a serialize method that returns a JSON string suitable for persisting the grid', () => {
+        const dataGrid = DataGrid({
+                name: 'test',
+                columns: [{name: 'col1'}]
+            },
+            [{col1: 1}]);
+        dataGrid.send({action: 'addRow', row: {col1: 2}});
+
+        const expectedString = '{"config":{"name":"test","columns":[{"name":"col1"}]},"rows":[{"col1":1},{"col1":2}]}';
+        expect(dataGrid.toJson()).to.equal(expectedString);
+    });
+});
+
+describe('Unserialize from JSON', () => {
+    it('returns null if trying to unserialize from bogus data', () => {
+        expect(DataGrid()).to.equal(null);
+        expect(DataGrid('')).to.equal(null);
+        expect(DataGrid([])).to.equal(null);
+        expect(DataGrid({})).to.equal(null);
+    });
+
+    it('initializes a DataGrid from the previously serialized JSON string, if valid', () => {
+        const jsonString = '{"config":{"name":"test","columns":[{"name":"col1"}]},"rows":[{"col1":1},{"col1":2}]}';
+        const dataGrid = DataGrid(jsonString);
+
+        const expectedState = {
+            config: {
+                name: 'test',
+                columns: [
+                    {name: 'col1'}
+                ]
+            },
+            rows: [
+                {col1: 1},
+                {col1: 2}
+            ]
+        };
+        expect(dataGrid.getState()).to.deep.equal(expectedState);
+    })
 });
