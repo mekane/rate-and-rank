@@ -1,7 +1,17 @@
 {{> pageStart }}
 <form name="newGrid" method="post" action="/grid/new">
-    <textarea name="config"></textarea>
-    <textarea name="rows"></textarea>
+    <label>Config:<br>
+        <textarea name="config">{
+    "name": "",
+    "columns": [
+        {"name": ""},
+        {"name": ""}
+    ]
+}</textarea>
+    </label>
+    <label>Initial Rows:
+        <textarea name="rows"></textarea>
+    </label>
     <input type="submit">
 </form>
 {{> pageEnd }}

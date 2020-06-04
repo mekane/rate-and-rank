@@ -8,14 +8,16 @@ const html = 'text/html';
 const json = 'application/json';
 
 let userRepository;
+let dataStore;
 
 let initialized = false;
 
-function initialize(port, injectedSessionHandler, injectedUserRepo) {
+function initialize(port, injectedSessionHandler, injectedUserRepo, injectedDataStore) {
     if (initialized)
         throw new Error('Error server is already running!');
 
     userRepository = injectedUserRepo;
+    dataStore = injectedDataStore;
 
     const app = express();
     app.engine('mustache', require('mustache-express')());
@@ -34,6 +36,7 @@ function initialize(port, injectedSessionHandler, injectedUserRepo) {
 }
 
 const loginpath = '/login';
+const newGridPath = '/grid/new';
 const routes = [
     {
         path: loginpath,
@@ -72,7 +75,7 @@ const routes = [
         handler: getNewGridForm
     },
     {
-        path: '/grid/new',
+        path: newGridPath,
         method: 'post',
         description: 'Post config and initial row data to create a new grid',
         handler: postNewGrid
@@ -174,7 +177,9 @@ function postLogin(req, res) {
     }
     else {
         req.session.loggedin = true;
+        req.session.userId = username;
         req.session.username = username;
+
         return res.format({
             html: _ => {
                 logRequest(req, html, 'successful login - redirect to homepage');
@@ -196,7 +201,7 @@ function getHome(req, res) {
     return res.format({
         html: _ => {
             logRequest(req, html, 'show homepage');
-            res.render('home', {title: Date.now()});
+            res.render('home', {title: 'Rate and Rank Home'});
         },
         json: _ => {
             logRequest(req, json, 'send all routes data');
@@ -215,7 +220,7 @@ function getListOfGridsForUser(req, res) {
         return enforceLoggedIn(req, res)
     }
 
-    const grids = getGridNamesFromSession(req.session);
+    const grids = getGridNamesForUser(req);
 
     return res.format({
         html: _ => {
@@ -235,13 +240,29 @@ function getGrid(req, res) {
     }
 
     const gridId = req.params['id'];
-    const grid = restoreGridFromSession(req.session, gridId);
+    const grid = retrieveGrid(req, gridId);
+    console.log('[show grid] retrieved ', grid.getState());
+    const tempData = JSON.stringify(grid.getState());
+
+    if (!grid) {
+        return res.status(404).format({
+            html: _ => {
+                logRequest(req, html, `get grid ${gridId} 404`);
+                res.render('grid', {title: gridName, gridName});
+            },
+            json: _ => {
+                logRequest(req, json, `grid state ${gridId} 404`);
+                res.json({error: true, errorCode: 404, message: `grid id ${gridId} not found`});
+            }
+        });
+    }
+
     const gridName = grid.getState().config.name;
 
     return res.format({
         html: _ => {
             logRequest(req, html, `show grid application page for grid ${gridId}`);
-            res.render('grid', {title: gridName, gridName});
+            res.render('grid', {title: gridName, gridName, tempData});
         },
         json: _ => {
             logRequest(req, json, `return grid state for grid ${gridId}`);
@@ -255,9 +276,23 @@ function getNewGridForm(req, res) {
         return enforceLoggedIn(req, res)
     }
 
-    logRequest(req, html, 'Show new grid form');
-    return res.render('newGridForm', {title: 'New Grid Form'});
-    //TODO: do something sane for JSON?
+    return res.format({
+        html: _ => {
+            logRequest(req, html, 'Show new grid form');
+            return res.render('newGridForm', {title: 'New Grid Form'});
+        },
+        json: _ => {
+            logRequest(req, html, 'Show path info for posting new form');
+            return res.json({
+                message: `To create a new form post to ${newGridPath}`,
+                path: newGridPath,
+                parameters: [
+                    {name: "config"},
+                    {name: "rows"}
+                ]
+            });
+        }
+    });
 }
 
 function postNewGrid(req, res) {
@@ -267,18 +302,22 @@ function postNewGrid(req, res) {
 
     const config = JSON.parse(req.body.config);
     const rows = JSON.parse(req.body.rows || '[]');
-
-    logRequest(req, html, 'Got new form post data');
-    console.log(config);
-    console.log(rows);
-
     const grid = DataGrid(config, rows);
-    console.log(grid.getState());
+    const newId = saveGrid(req, grid);
 
-    const newId = saveGridToSession(req.session, grid);
-
-    return res.send('Saved grid under id ' + newId); //TODO: better response here
-    //TODO: JSON response
+    return res.format({
+        html: _ => {
+            logRequest(req, html, 'Got new form post data');
+            return res.render('newGridSuccess', {title: 'New Grid Created', newId});
+        },
+        json: _ => {
+            logRequest(req, json, 'Got new form post data');
+            return res.send({
+                success: true,
+                id: newId
+            });
+        }
+    });
 }
 
 function putGridAction(req, res) {
@@ -290,7 +329,8 @@ function putGridAction(req, res) {
     const grid = restoreGridFromSession(req.session, gridId);
     const action = JSON.parse(req.body.action);
     grid.send(action);
-    saveGridToSession(req.session, grid, gridId);
+
+    saveGrid(req, grid, gridId);
 
     return res.format({
         html: _ => {
@@ -312,13 +352,65 @@ function logRequest(req, contentType, message) {
     console.log(`${req.method} ${req.path} ${contentType} - ${message}`);
 }
 
-/** -------- Grid Persistance -------- **/
-function getGridNamesFromSession(session, gridName) {
-    const grids = session.grids || {};
-    return Object.keys(grids).map(id => ({
-        id,
-        name: grids[id].config.name
-    }));
+/** -------- Grid Persistence -------- **/
+function retrieveGrid(req, gridId) {
+    //try session "cache first"
+    const session = req.session;
+    let grid = restoreGridFromSession(session, gridId);
+
+    //fall back to permanent storage
+    if (!grid) {
+        const userId = session.userId;
+
+        if (!userId)
+            return null;
+
+        const gridData = dataStore.getDataFor(userId, gridId);
+        console.log('[retrieve grid] got grid data', data);
+        grid = DataGrid(gridData.config, gridData.rows);
+    }
+
+    return grid;
+}
+
+function saveGrid(req, gridObj, gridId) {
+    let id = gridId;
+    if (typeof gridId === 'undefined') {
+        id = 'grid_' + Date.now();
+    }
+
+    const session = req.session;
+    const userId = req.session.userId;
+    if (!userId)
+        console.warn('WARNING userId is falsy');
+
+    //always save data to session and to permanent storage
+    saveGridToSession(session, gridObj, id);
+    dataStore.putDataFor(userId, id, gridObj.getState());
+
+    return id;
+}
+
+function getGridNamesForUser(req) {
+    const userId = req.session.userId;
+    if (!userId)
+        return [];
+
+    const entries = dataStore.listDataFor(userId);
+
+    const list = [];
+
+    entries.forEach(gridId => {
+        const grid = dataStore.getDataFor(userId, gridId);
+        console.log(grid);
+        if (grid.config && grid.config.name)
+            list.push({
+                id: gridId,
+                name: grid.config.name
+            });
+    });
+
+    return list;
 }
 
 function restoreGridFromSession(session, gridId) {
@@ -329,18 +421,12 @@ function restoreGridFromSession(session, gridId) {
 }
 
 function saveGridToSession(session, gridObj, gridId) {
-    let id = gridId;
-    if (typeof gridId === 'undefined') {
-        id = 'g' + Date.now();
-    }
-
     if (typeof session.grids !== 'object') {
         session.grids = {};
     }
 
-    session.grids[id] = gridObj.getState();
-
-    return id;
+    console.log('[save to session]', gridObj.getState())
+    session.grids[gridId] = gridObj.getState();
 }
 
 module.exports = {
