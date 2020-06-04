@@ -386,7 +386,7 @@ function saveGrid(req, gridObj, gridId) {
 
     //always save data to session and to permanent storage
     saveGridToSession(session, gridObj, id);
-    dataStore.putDataFor(userId, id, gridObj.getState());
+    dataStore.putDataFor(userId, id, gridObj.toJson());
 
     return id;
 }

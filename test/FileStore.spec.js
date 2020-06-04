@@ -60,33 +60,33 @@ describe('Setting and getting data', () => {
         fileStore.putDataFor('testId', '2', 'Test String');
         fileStore.putDataFor('testId', '3', {foo: 'bar'});
 
-        expect(fileStore.getDataFor('testId', '1')).to.equal(1)
+        expect(fileStore.getDataFor('testId', '1')).to.equal('1');
         expect(fileStore.getDataFor('testId', '2')).to.equal('Test String');
-        expect(fileStore.getDataFor('testId', '3')).to.eql({foo: 'bar'});
+        expect(fileStore.getDataFor('testId', '3')).to.eql("[object Object]");
     });
 
     it('persists across memory resets and object instances', () => {
         const fileStore1 = FileStore(testDataPath);
-        fileStore1.putDataFor('testId', '1', 1);
+        fileStore1.putDataFor('testId', '1', '1');
         fileStore1.putDataFor('testId', '2', 'Test String');
-        fileStore1.putDataFor('testId', '3', {foo: 'bar'});
+        fileStore1.putDataFor('testId', '3', "{foo: 'bar'}");
 
         delete require.cache[require.resolve('../src/FileStore')];
         const ResetFileStore = require('../src/FileStore');
 
         const fileStore2 = ResetFileStore(testDataPath);
-        expect(fileStore2.getDataFor('testId', '1')).to.equal(1)
+        expect(fileStore2.getDataFor('testId', '1')).to.equal('1')
         expect(fileStore2.getDataFor('testId', '2')).to.equal('Test String');
-        expect(fileStore2.getDataFor('testId', '3')).to.eql({foo: 'bar'});
+        expect(fileStore2.getDataFor('testId', '3')).to.eql("{foo: 'bar'}");
     });
 });
 
 describe('Listing data', () => {
     it('can list all the entries stored for a given directory', () => {
         const fileStore = FileStore(testDataPath);
-        fileStore.putDataFor('newTestId', '1', 1);
+        fileStore.putDataFor('newTestId', '1', '1');
         fileStore.putDataFor('newTestId', '2', 'Test String');
-        fileStore.putDataFor('newTestId', '3', {foo: 'bar'});
+        fileStore.putDataFor('newTestId', '3', '{foo: "bar"}');
 
         expect(fileStore.listDataFor('newTestId')).to.deep.equal(['1', '2', '3']);
     });

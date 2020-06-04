@@ -22,7 +22,7 @@ function FileStore(dataPath) {
         }
         //console.log(`Read ${fileName}`);
         //console.log(fileContents);
-        return JSON.parse(fileContents);
+        return fileContents;
     }
 
     function listDataFor(dirKey) {
@@ -46,13 +46,12 @@ function FileStore(dataPath) {
         const userDir = path.resolve(dataPath, dirKey);
         const fileName = path.resolve(userDir, dataFileName(entryKey))
 
-        console.log('[FileStore] raw data', data);
-        const contentToWrite = JSON.stringify(data);
-        console.log('[FileStore] save data', contentToWrite);
+        if ( typeof data !== 'string')
+            console.warn('[FileStore] trying to persist non-string data', data);
 
         ensureDirectory(userDir);
         const file = fs.openSync(fileName, 'w');
-        fs.writeSync(file, contentToWrite);
+        fs.writeSync(file, data);
         fs.closeSync(file);
     }
 
