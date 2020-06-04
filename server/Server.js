@@ -365,9 +365,8 @@ function retrieveGrid(req, gridId) {
         if (!userId)
             return null;
 
-        const gridData = dataStore.getDataFor(userId, gridId);
-        console.log('[retrieve grid] got grid data', data);
-        grid = DataGrid(gridData.config, gridData.rows);
+        const gridJson = dataStore.getDataFor(userId, gridId);
+        grid = DataGrid(gridJson);
     }
 
     return grid;
@@ -401,9 +400,9 @@ function getGridNamesForUser(req) {
     const list = [];
 
     entries.forEach(gridId => {
-        const grid = dataStore.getDataFor(userId, gridId);
-        console.log(grid);
-        if (grid.config && grid.config.name)
+        const gridJson = dataStore.getDataFor(userId, gridId);
+        const grid = DataGrid(gridJson);
+        if (grid)
             list.push({
                 id: gridId,
                 name: grid.config.name
@@ -416,7 +415,7 @@ function getGridNamesForUser(req) {
 function restoreGridFromSession(session, gridId) {
     if (session.grids) {
         const gridData = session.grids[gridId];
-        return DataGrid(gridData.config, gridData.rows);
+        return DataGrid(gridData);
     }
 }
 
@@ -425,8 +424,7 @@ function saveGridToSession(session, gridObj, gridId) {
         session.grids = {};
     }
 
-    console.log('[save to session]', gridObj.getState())
-    session.grids[gridId] = gridObj.getState();
+    session.grids[gridId] = gridObj.toJson();
 }
 
 module.exports = {
