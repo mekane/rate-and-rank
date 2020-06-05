@@ -46,7 +46,7 @@ function FileStore(dataPath) {
         const userDir = path.resolve(dataPath, dirKey);
         const fileName = path.resolve(userDir, dataFileName(entryKey))
 
-        if ( typeof data !== 'string')
+        if (typeof data !== 'string')
             console.warn('[FileStore] trying to persist non-string data', data);
 
         ensureDirectory(userDir);
@@ -67,10 +67,14 @@ function ensureDirectory(path) {
     fs.mkdirSync(path, {recursive: true});
 }
 
-function dataFileName(name) {
-    const noSpaces = name.replace(/\s|-/g, '_');
+function fileSafeName(name) {
+    const noSpaces = name.trim().replace(/\s|-/g, '_');
     const noSpecialChars = noSpaces.replace(/[\W]/g, '');
-    return noSpecialChars + '.json';
+    return noSpecialChars.toLowerCase();
+}
+
+function dataFileName(name) {
+    return fileSafeName(name) + '.json';
 }
 
 module.exports = FileStore;

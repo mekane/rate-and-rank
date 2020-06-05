@@ -12,6 +12,8 @@ let dataStore;
 
 let initialized = false;
 
+const inMemoryGridsPerUser = {};
+
 function initialize(port, injectedSessionHandler, injectedUserRepo, injectedDataStore) {
     if (initialized)
         throw new Error('Error server is already running!');
@@ -35,17 +37,17 @@ function initialize(port, injectedSessionHandler, injectedUserRepo, injectedData
     initialized = true;
 }
 
-const loginpath = '/login';
+const loginPath = '/login';
 const newGridPath = '/grid/new';
 const routes = [
     {
-        path: loginpath,
+        path: loginPath,
         method: 'get',
         description: 'Show login page',
         handler: getLogin
     },
     {
-        path: loginpath,
+        path: loginPath,
         method: 'post',
         description: 'Send a login request',
         handler: postLogin
@@ -109,7 +111,12 @@ function enforceLoggedIn(req, res) {
             status: {message: 'Please log in to see the requested content'},
             redirect: req.path  //TODO: use redirect after login
         }),
-        json: _ => res.json({loggedin: false, error: true, message: `login required to access ${path}`})
+        json: _ => res.json({
+            loggedin: false,
+            error: true,
+            loginpath: loginPath,
+            message: `login required to access ${req.path}`
+        })
     });
     res.end();
 }
@@ -132,7 +139,7 @@ function getLogin(req, res) {
             logRequest(req, json, 'return login data');
             res.json({
                 loggedin,
-                loginpath,
+                loginpath: loginPath,
                 method: "post",
                 required: ["username", "password"]
             });
@@ -157,7 +164,6 @@ function getLogout(req, res) {
 function postLogin(req, res) {
     const username = req.body.username;
     const password = req.body.password;
-
     const user = userRepository.getUser(username, password);
 
     if (user == null) {
@@ -326,7 +332,7 @@ function putGridAction(req, res) {
     }
 
     const gridId = req.params['id'];
-    const grid = restoreGridFromSession(req.session, gridId);
+    const grid = retrieveGrid(req, gridId);
     const action = JSON.parse(req.body.action);
     grid.send(action);
 
@@ -334,11 +340,11 @@ function putGridAction(req, res) {
 
     return res.format({
         html: _ => {
-            //TODO: something for html?
+            return res.send('ok');
         },
         json: _ => {
             logRequest(req, json, `sent action to ${gridId}: ${action}`);
-            res.json(grid.getState());
+            return res.json(grid.getState());
         }
     });
 }
@@ -354,17 +360,15 @@ function logRequest(req, contentType, message) {
 
 /** -------- Grid Persistence -------- **/
 function retrieveGrid(req, gridId) {
-    //try session "cache first"
     const session = req.session;
-    let grid = restoreGridFromSession(session, gridId);
+    const userId = session.userId;
 
-    //fall back to permanent storage
+    if (!userId)
+        return null;
+
+    let grid = getLiveGridFromCache(userId, gridId);
+
     if (!grid) {
-        const userId = session.userId;
-
-        if (!userId)
-            return null;
-
         const gridJson = dataStore.getDataFor(userId, gridId);
         grid = DataGrid(gridJson);
     }
@@ -373,18 +377,26 @@ function retrieveGrid(req, gridId) {
 }
 
 function saveGrid(req, gridObj, gridId) {
+    let name = '';
+    try {
+        name = gridObj.getState().config.name;
+    } catch (err) {
+        console.warn('[saveGrid] grid obj appears bogus', err);
+        return gridId;
+    }
+
     let id = gridId;
+
     if (typeof gridId === 'undefined') {
-        id = 'grid_' + Date.now();
+        id = `grid_${name}_${Date.now()}`;
     }
 
     const session = req.session;
-    const userId = req.session.userId;
+    const userId = session.userId;
     if (!userId)
         console.warn('WARNING userId is falsy');
 
-    //always save data to session and to permanent storage
-    saveGridToSession(session, gridObj, id);
+    saveGridToCache(session, userId, id, gridObj);
     dataStore.putDataFor(userId, id, gridObj.toJson());
 
     return id;
@@ -405,26 +417,25 @@ function getGridNamesForUser(req) {
         if (grid)
             list.push({
                 id: gridId,
-                name: grid.config.name
+                name: grid.getState().config.name
             });
     });
 
     return list;
 }
 
-function restoreGridFromSession(session, gridId) {
-    if (session.grids) {
-        const gridData = session.grids[gridId];
-        return DataGrid(gridData);
+function getLiveGridFromCache(userId, gridId) {
+    if (inMemoryGridsPerUser[userId]) {
+        return inMemoryGridsPerUser[userId][gridId];
     }
 }
 
-function saveGridToSession(session, gridObj, gridId) {
-    if (typeof session.grids !== 'object') {
-        session.grids = {};
+function saveGridToCache(session, userId, gridId, gridObj) {
+    if (typeof inMemoryGridsPerUser[userId] !== 'object') {
+        inMemoryGridsPerUser[userId] = {};
     }
 
-    session.grids[gridId] = gridObj.toJson();
+    inMemoryGridsPerUser[userId][gridId] = gridObj;
 }
 
 module.exports = {
