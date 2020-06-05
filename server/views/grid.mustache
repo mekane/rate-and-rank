@@ -5,4 +5,15 @@
 <pre>
     {{tempData}}
 </pre>
+
+PUT actions to <b>{{ actionUrl }}</b>
+
+<script type="module">
+    import JsonApiActionDispatcher from '/JsonApiActionDispatcher.js';
+    const actionD = JsonApiActionDispatcher('{{& actionUrl }}');
+    console.log(actionD);
+
+    actionD.subscribe(state => console.log('New State', state));
+    window.actionD = actionD;
+</script>
 {{> pageEnd }}

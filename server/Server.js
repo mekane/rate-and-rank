@@ -10,6 +10,7 @@ const json = 'application/json';
 let userRepository;
 let dataStore;
 
+let baseUrl = '';
 let initialized = false;
 
 const inMemoryGridsPerUser = {};
@@ -33,7 +34,10 @@ function initialize(port, injectedSessionHandler, injectedUserRepo, injectedData
     setupRouting(app);
     app.use(send404); //
 
-    app.listen(port, () => console.log(`Rate and Rank app listening on port ${port}!`));
+    const hostname = 'localhost'//os.hostname();
+    baseUrl = `http://${hostname}:${port}`;
+
+    app.listen(port, () => console.log(`Rate and Rank app listening at ${baseUrl}`));
     initialized = true;
 }
 
@@ -247,8 +251,6 @@ function getGrid(req, res) {
 
     const gridId = req.params['id'];
     const grid = retrieveGrid(req, gridId);
-    console.log('[show grid] retrieved ', grid.getState());
-    const tempData = JSON.stringify(grid.getState());
 
     if (!grid) {
         return res.status(404).format({
@@ -263,12 +265,16 @@ function getGrid(req, res) {
         });
     }
 
+    const currentState = grid.getState();
     const gridName = grid.getState().config.name;
+    const tempData = JSON.stringify(currentState);
+
+    const actionUrl = baseUrl + `/grid/${gridId}/action`;
 
     return res.format({
         html: _ => {
             logRequest(req, html, `show grid application page for grid ${gridId}`);
-            res.render('grid', {title: gridName, gridName, tempData});
+            res.render('grid', {title: gridName, gridName, actionUrl, tempData});
         },
         json: _ => {
             logRequest(req, json, `return grid state for grid ${gridId}`);
@@ -333,20 +339,33 @@ function putGridAction(req, res) {
 
     const gridId = req.params['id'];
     const grid = retrieveGrid(req, gridId);
-    const action = JSON.parse(req.body.action);
-    grid.send(action);
+    const action = req.body.action;
 
-    saveGrid(req, grid, gridId);
+    if (typeof action === 'object') {
+        grid.send(action);
+        saveGrid(req, grid, gridId);
+
+        return res.format({
+            html: _ => {
+                return res.send('ok');
+            },
+            json: _ => {
+                logRequest(req, json, `sent action to ${gridId}: ${action}`);
+                return res.json(grid.getState());
+            }
+        });
+    }
 
     return res.format({
         html: _ => {
-            return res.send('ok');
+            return res.send('400 Error, invalid action "' + action + '"');
         },
         json: _ => {
             logRequest(req, json, `sent action to ${gridId}: ${action}`);
-            return res.json(grid.getState());
+            return res.status(400).json({error: true, message: `invalid action "${action}"`});
         }
     });
+
 }
 
 function send404(req, res, next) {

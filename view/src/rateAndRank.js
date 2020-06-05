@@ -1,4 +1,10 @@
 /**
+ * TODO: Separate into a "main" and an App() component so that an action-send mechanism can be injected
+ * and the App can be instantiated by pointing at multiple elements on the same page and not conflict
+ * (Probably need to somehow tag the row drags so they only apply to the grid they started from!)
+ */
+
+/**
  * The "main" module that will set up a DataGrid, initialize the view, and coordinate message passing and rendering
  */
 import DataGrid from "../../src/DataGrid";
