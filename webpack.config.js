@@ -5,7 +5,7 @@ module.exports = {
         'demo/browserDemo': './view/index.browserDemo.js',
         jsonApiClient: './view/index.jsonApiClient.js',
     },
-    mode: 'development',
+    mode: 'production',
     output: {
         filename: '[name].bundle.js',
         library: 'DataGrid',

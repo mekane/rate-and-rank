@@ -12,7 +12,7 @@
  * functions which will be passed the current state after the action complete. If
  * you pass an object with a function property named 'update' that will be called.
  */
-function JsonApiActionDispatcher(url) {
+export default function JsonApiActionDispatcher(url) {
     const subscribers = new Set();
 
     function send(action) {
@@ -59,5 +59,3 @@ function JsonApiActionDispatcher(url) {
         });
     }
 }
-
-export default JsonApiActionDispatcher;

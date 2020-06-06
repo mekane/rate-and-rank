@@ -52,10 +52,15 @@ function initializeAppLevelEvents() {
         }
     });
 
+    /* Not really necessary any more because the JsonApiClient version persists server-side
+     * on every action and the in-memory on is just for demos anyway
+     */
+    /*
     window.addEventListener('beforeunload', (event) => {
         event.preventDefault();
         event.returnValue = 'Rate and Rank';
     });
+     */
 }
 
 function undo() {

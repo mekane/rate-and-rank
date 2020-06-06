@@ -2,15 +2,20 @@
 <html>
 <head>
     <title>Rate and Rank Demos</title>
-    <style>
-
-    </style>
+    <link rel="stylesheet" href="/css/grid.css">
 </head>
 <body>
 <h1>Rate and Rank Demo</h1>
+
+<h2>Basic Grid</h2>
+<div id="grid1"></div>
+
+<h2>Grid With Initial Rows</h2>
+<div id="grid2"></div>
+
 <script type="text/javascript" src="browserDemo.bundle.js"></script>
 <script>
-
+    DataGrid.initGrid('#grid1', {name: 'Basic Grid', columns:[{name: 'Column One'}, {name: 'Column Two'}]}, [{}, {}]);
 </script>
 </body>
 </html>
