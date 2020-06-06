@@ -1,19 +1,11 @@
 {{> pageStart }}
-
+<link rel="stylesheet" href="/css/grid.css">
 <h1>App View for Data Grid {{gridName}}</h1>
 
-<pre>
-    {{tempData}}
-</pre>
+<div id="grid"></div>
 
-PUT actions to <b>{{ actionUrl }}</b>
-
-<script type="module">
-    import JsonApiActionDispatcher from '/JsonApiActionDispatcher.js';
-    const actionD = JsonApiActionDispatcher('{{& actionUrl }}');
-    console.log(actionD);
-
-    actionD.subscribe(state => console.log('New State', state));
-    window.actionD = actionD;
+<script type="text/javascript" src="/jsonApiClient.bundle.js"></script>
+<script type="text/javascript">
+    DataGrid.initGrid('#grid', '{{& actionUrl }}');
 </script>
 {{> pageEnd }}

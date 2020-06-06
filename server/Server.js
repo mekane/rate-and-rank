@@ -350,7 +350,7 @@ function putGridAction(req, res) {
                 return res.send('ok');
             },
             json: _ => {
-                logRequest(req, json, `sent action to ${gridId}: ${action}`);
+                logRequest(req, json, `sent action to ${gridId}: ${JSON.stringify(action)}`);
                 return res.json(grid.getState());
             }
         });

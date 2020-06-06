@@ -4,7 +4,7 @@ import {Row} from './Row';
 
 const h = require('snabbdom/h').default;
 
-export function Grid(state, action) {
+export function Grid(state) {
     const columns = state.config.columns;
 
     const data = {
