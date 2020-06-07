@@ -7,15 +7,31 @@
 <body>
 <h1>Rate and Rank Demo</h1>
 
-<h2>Basic Grid</h2>
 <div id="grid1"></div>
 
-<h2>Grid With Initial Rows</h2>
 <div id="grid2"></div>
 
 <script type="text/javascript" src="browserDemo.bundle.js"></script>
 <script>
-    DataGrid.initGrid('#grid1', {name: 'Basic Grid', columns:[{name: 'Column One'}, {name: 'Column Two'}]}, [{}, {}]);
+    const config1 = {
+        name: 'Basic Grid',
+        columns: [
+            {name: 'Column One'},
+            {name: 'Column Two'}
+        ]
+    };
+    const rows1 = [{}, {}];
+    DataGrid.initGrid('#grid1', config1, rows1);
+
+    const config2 = {
+        name: 'Basic Grid',
+        columns: [
+            {name: 'Column One'},
+            {name: 'Column Two'}
+        ]
+    };
+    const rows2 = [{}, {}];
+    DataGrid.initGrid('#grid2', config2, rows2);
 </script>
 </body>
 </html>

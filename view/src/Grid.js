@@ -12,16 +12,15 @@ export function Grid(state) {
             dragenter: allowAndIgnoreDrops,
             dragover: allowAndIgnoreDrops,
             drop: allowAndIgnoreDrops
-        },
-        style: {
-            'min-height': '100vh'
         }
     };
 
+    const title = h('div.title', state.config.name);
     const headerRow = getColumnHeaders(columns);
     const rows = state.rows.map((row, i) => Row(row, i, columns));
+    const children = [title, headerRow].concat(rows);
 
-    return h('div.grid', data, [headerRow].concat(rows));
+    return h('div.grid', data, children);
 
 
     function getColumnHeaders(columns) {

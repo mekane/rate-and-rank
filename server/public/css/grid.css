@@ -41,12 +41,16 @@ div.image-drop-target.drophighlight {
 }
 
 .grid {
-    border-right: 1px solid #ccc;
-    border-top: 1px solid #ccc;
+}
+
+.grid > .title {
+    font-size: 26px;
 }
 
 div.row,
 div.column-header-row {
+    border-right: 1px solid #ccc;
+    border-top: 1px solid #ccc;
     display: grid;
 }
 
