@@ -27,7 +27,7 @@ export function GridCell(column, rawContent, rowIndex) {
     function makeImageCellContent(imgSrc) {
         const children = [];
 
-        if (isValid(imgSrc)) {
+        if (isValidImgSrcValue(imgSrc)) {
             const imgData = {
                 attrs: {
                     src: imgSrc,
@@ -72,7 +72,7 @@ export function GridCell(column, rawContent, rowIndex) {
 }
 
 //TODO: could improve this. Add check for "data:image/..." or "http://" at beginning
-function isValid(string) {
+function isValidImgSrcValue(string) {
     return string && string.length;
 }
 
