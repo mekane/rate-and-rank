@@ -41,6 +41,7 @@ div.image-drop-target.drophighlight {
 }
 
 .grid {
+    margin: 8px auto;
 }
 
 .grid > .title {
@@ -83,4 +84,20 @@ div.row:hover {
 
 .grid-cell {
     position: relative;
+}
+
+.add-row {
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    height: 36px;
+    line-height: 32px;
+    margin: 6px 5px 2px;
+    text-align: center;
+}
+
+.add-row:hover {
+    background: #f0fff6;
+    border: 2px dashed #0c6;
+    color: #333;
 }

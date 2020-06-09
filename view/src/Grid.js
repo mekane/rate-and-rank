@@ -18,7 +18,8 @@ export function Grid(state) {
     const title = h('div.title', state.config.name);
     const headerRow = getColumnHeaders(columns);
     const rows = state.rows.map((row, i) => Row(row, i, columns));
-    const children = [title, headerRow].concat(rows);
+    const addRow = makeAddRow();
+    const children = [title, headerRow].concat(rows).concat(addRow);
 
     return h('div.grid', data, children);
 
@@ -35,6 +36,15 @@ export function Grid(state) {
     function gridColumnHeader(column) {
         return h('div.grid-column-header', column.name);
     }
+}
+
+function makeAddRow() {
+    const data = {
+        on: {
+            click: e => window.action({action: 'addRow'})
+        }
+    };
+    return h('div.add-row', data, '+ Add Row');
 }
 
 /**
