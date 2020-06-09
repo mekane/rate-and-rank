@@ -4,7 +4,7 @@ import {Row} from './Row';
 
 const h = require('snabbdom/h').default;
 
-export function Grid(state) {
+export function Grid(state, actionDispatch) {
     const columns = state.config.columns;
 
     const data = {
@@ -17,8 +17,8 @@ export function Grid(state) {
 
     const title = h('div.title', state.config.name);
     const headerRow = getColumnHeaders(columns);
-    const rows = state.rows.map((row, i) => Row(row, i, columns));
-    const addRow = makeAddRow();
+    const rows = state.rows.map((row, i) => Row(row, i, columns, actionDispatch));
+    const addRow = makeAddRow(actionDispatch);
     const children = [title, headerRow].concat(rows).concat(addRow);
 
     return h('div.grid', data, children);
@@ -38,10 +38,10 @@ export function Grid(state) {
     }
 }
 
-function makeAddRow() {
+function makeAddRow(actionDispatch) {
     const data = {
         on: {
-            click: e => window.action({action: 'addRow'})
+            click: e => actionDispatch({action: 'addRow'})
         }
     };
     return h('div.add-row', data, '+ Add Row');

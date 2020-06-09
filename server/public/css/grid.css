@@ -53,6 +53,7 @@ div.column-header-row {
     border-right: 1px solid #ccc;
     border-top: 1px solid #ccc;
     display: grid;
+    min-height: 38px;
 }
 
 div.row:hover {

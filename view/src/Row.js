@@ -6,9 +6,9 @@ import {getGridRowStyles} from "./viewHelpers";
 
 const rowDataType = 'text/actionjson';
 
-export function Row(rowValues, rowIndex, columns) {
-    const rankCell = RankCell(rowIndex);
-    const rowCells = columns.map(column => GridCell(column, rowValues[column.name], rowIndex));
+export function Row(rowValues, rowIndex, columns, actionDispatch) {
+    const rankCell = RankCell(rowIndex, actionDispatch);
+    const rowCells = columns.map(column => GridCell(column, rowValues[column.name], rowIndex, actionDispatch));
 
     const data = {
         attrs: {
@@ -61,7 +61,7 @@ export function Row(rowValues, rowIndex, columns) {
         if (moveRow.action === 'moveRow') {
             moveRow.newIndex = rowIndex;
 
-            window.action(moveRow);
+            actionDispatch(moveRow);
         }
     }
 

@@ -8,10 +8,10 @@ const column = {
     isRankColumn: true
 }
 
-export function RankCell(rowIndex) {
+export function RankCell(rowIndex, actionDispatch) {
     const data = {
         on: {
-            click: makeEditable(column, rowIndex)
+            click: makeEditable(column, rowIndex, actionDispatch)
         }
     };
     const className = getGridCellClassName('__rank-column', rowIndex);
@@ -21,14 +21,14 @@ export function RankCell(rowIndex) {
 }
 
 
-function makeEditable(column, rowIndex) {
+function makeEditable(column, rowIndex, actionDispatch) {
     return function (event) {
-        editRank(event.target, rowIndex);
+        editRank(event.target, rowIndex, actionDispatch);
     }
 }
 
 
-function editRank(gridCell, rowIndex) {
+function editRank(gridCell, rowIndex, actionDispatch) {
     const originalValue = gridCell.textContent;
     const input = document.createElement('input');
     input.type = 'number';
@@ -44,7 +44,7 @@ function editRank(gridCell, rowIndex) {
     function submit() {
         actionData.newIndex = input.value - 1;
         input.blur();
-        window.action(actionData);
+        actionDispatch(actionData);
     }
 
     function cancel() {

@@ -4,6 +4,7 @@
 import waitForDocumentReady from "./documentReady";
 
 const snabbdom = require('snabbdom');
+const toVNode = require('snabbdom/tovnode').default;
 const patch = snabbdom.init([ // Init patch function with chosen modules
     require('snabbdom/modules/attributes').default,
     require('snabbdom/modules/class').default,
@@ -15,58 +16,20 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 import {Grid as GridView} from './Grid';
 
 /**
- * vNode - root virtual node that the render function hooks into
+ * attachElement - root virtual node that the render function hooks into
  * actionDispatcher - the module that will send actions and notify the subscribed callback of new states
  */
-export default function DataGridView(vNode, actionDispatcher) {
-    let vnode = vNode;
-    window.action = actionDispatcher.send; //use global to avoid passing this down to every last component
+export default function DataGridView(attachElement, actionDispatcher) {
+    let vnode = toVNode(attachElement);
+    const actionDispatch = actionDispatcher.send;
     actionDispatcher.subscribe(render);
 
     waitForDocumentReady(document)
-        .then(initializeAppLevelEvents)
         .then(actionDispatcher.send({action: 'refresh'}));
 
     function render(nextState) {
-        console.log('Got new state from action module', nextState);
-        const nextView = GridView(nextState);
+        console.log('Got new state from actionDispatcher module', nextState);
+        const nextView = GridView(nextState, actionDispatch);
         vnode = patch(vnode, nextView);
     }
-}
-
-function initializeAppLevelEvents() {
-    const body = document.querySelector('body');
-    body.addEventListener('keyup', e => {
-        let key = e.key;
-
-        if (e.ctrlKey)
-            key = `ctrl+${key}`;
-
-        switch (key) {
-            case "ctrl+z":
-                undo();
-                break;
-            case "ctrl+Z":
-                redo();
-                break;
-        }
-    });
-
-    /* Not really necessary any more because the JsonApiClient version persists server-side
-     * on every action and the in-memory on is just for demos anyway
-     */
-    /*
-    window.addEventListener('beforeunload', (event) => {
-        event.preventDefault();
-        event.returnValue = 'Rate and Rank';
-    });
-     */
-}
-
-function undo() {
-    action({action: 'undo'});
-}
-
-function redo() {
-    action({action: 'redo'});
 }
