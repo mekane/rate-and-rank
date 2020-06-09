@@ -18,8 +18,8 @@ export function Grid(state, actionDispatch) {
     const title = h('div.title', state.config.name);
     const headerRow = getColumnHeaders(columns);
     const rows = state.rows.map((row, i) => Row(row, i, columns, actionDispatch));
-    const addRow = makeAddRow(actionDispatch);
-    const children = [title, headerRow].concat(rows).concat(addRow);
+    const controls = makeControls(actionDispatch);
+    const children = [title, headerRow].concat(rows).concat(controls);
 
     return h('div.grid', data, children);
 
@@ -38,15 +38,45 @@ export function Grid(state, actionDispatch) {
     }
 }
 
+function makeControls(actionDispatch) {
+    const controls = [
+        makeAddRow(actionDispatch),
+        //makeUndoButton(actionDispatch),
+        //makeRedoButton(actionDispatch)
+    ];
+    return h('div.controls', {}, controls);
+}
+
 function makeAddRow(actionDispatch) {
     const data = {
         on: {
             click: e => actionDispatch({action: 'addRow'})
         }
     };
-    return h('div.add-row', data, '+ Add Row');
+    return h('button.add-row', data, '+ Add Row');
+}
+/* Note: undo and redo here are commented out because these "local" undo/redo
+   actions would conflict with the global undo/redo action handler and would
+   cause this grid to get out of sync with the local one.
+
+function makeUndoButton(actionDispatch) {
+    const data = {
+        on: {
+            click: e => actionDispatch({action: 'undo'})
+        }
+    };
+    return h('button.undo', data, 'Undo');
 }
 
+function makeRedoButton(actionDispatch) {
+    const data = {
+        on: {
+            click: e => actionDispatch({action: 'redo'})
+        }
+    };
+    return h('button.redo', data, 'Redo');
+}
+*/
 /**
  * This indicates that dropping is allowed anywhere in the grid.
  * We use this to capture image drops from outside the browser
