@@ -1,11 +1,45 @@
 import InMemoryDataGridActionDispatcher from './src/InMemoryDataGridActionDispatcher';
 import DataGridView from "./src/DataGridView";
+import waitForDocumentReady from "./src/documentReady";
 
 export function initGrid(selector, config, rows) {
     const el = document.querySelector(selector);
     const actionDispatcher = InMemoryDataGridActionDispatcher(config, rows);
     DataGridView(el, actionDispatcher);
     console.log('DataGrid initialized on element ' + selector);
+}
+
+waitForDocumentReady(document)
+    .then(initGlobalUndoHandler);
+
+
+function initGlobalUndoHandler() {
+    console.log('* Browser Demo - Global Undo/Redo Handler');
+    window.dataGridUndos = [];
+    window.dataGridRedos = [];
+
+    //
+    const body = document.querySelector('body');
+    const gridControls = document.createElement('div');
+    gridControls.className = 'grid-controls';
+
+    const undoButton = document.createElement('button');
+    undoButton.className = 'grid-controls__undo-button';
+    undoButton.textContent = 'Undo';
+    undoButton.addEventListener('click', e => {
+        console.log('global undo', window.dataGridUndos);
+    });
+
+    const redoButton = document.createElement('button');
+    redoButton.className = 'grid-controls__redo-button';
+    redoButton.textContent = 'Redo';
+    redoButton.addEventListener('click', e => {
+        console.log('global redo', window.dataGridRedos);
+    });
+
+    gridControls.appendChild(undoButton);
+    gridControls.appendChild(redoButton);
+    body.appendChild(gridControls);
 }
 
 /* Need to figure out how to handle key event for undo/redo

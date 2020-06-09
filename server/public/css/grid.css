@@ -26,6 +26,36 @@ input:focus {
     outline: 2px solid #999;
 }
 
+button {
+    align-items: center;
+    background: #666;
+    border: none;
+    border-radius: 0;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: inherit;
+    font-size: 18px;
+    height: 36px;
+    line-height: 32px;
+    justify-content: center;
+    margin: 0 8px 0 0;
+    min-height: 44px;
+    min-width: 10ch;
+    padding: .5em 1em;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #339;
+}
+
+button:active,
+button:focus {
+    border-style: none;
+    outline: none;
+}
+
 div.image-drop-target {
     margin: 8px;
     padding: 8px;
@@ -87,18 +117,19 @@ div.row:hover {
     position: relative;
 }
 
+.grid > .controls {
+    opacity: 0;
+    padding: 8px 0;
+}
+
+.grid:hover > .controls {
+    opacity: 1;
+}
+
 .add-row {
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
-    height: 36px;
-    line-height: 32px;
-    margin: 6px 5px 2px;
-    text-align: center;
+    padding-right: 20px;
 }
 
 .add-row:hover {
-    background: #f0fff6;
-    border: 2px dashed #0c6;
-    color: #333;
+    background: #393;
 }
