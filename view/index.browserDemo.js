@@ -5,6 +5,7 @@ import waitForDocumentReady from "./src/documentReady";
 export function initGrid(selector, config, rows) {
     const el = document.querySelector(selector);
     const actionDispatcher = InMemoryDataGridActionDispatcher(config, rows);
+
     DataGridView(el, actionDispatcher);
     console.log('DataGrid initialized on element ' + selector);
 }
@@ -14,45 +15,34 @@ waitForDocumentReady(document)
 
 
 function initGlobalUndoHandler() {
-    console.log('* Browser Demo - Global Undo/Redo Handler');
     window.dataGridUndos = [];
     window.dataGridRedos = [];
 
-    //
     const body = document.querySelector('body');
+    body.addEventListener('keyup', handleKeys);
+
     const gridControls = document.createElement('div');
     gridControls.className = 'grid-controls';
+    gridControls.addEventListener('mouseenter', updateUndoRedoButtonStates);
 
     const undoButton = document.createElement('button');
     undoButton.className = 'grid-controls__undo-button';
     undoButton.textContent = 'Undo';
-    undoButton.addEventListener('click', e => {
-        console.log('global undo', window.dataGridUndos);
-    });
+    undoButton.addEventListener('click', globalUndo);
 
     const redoButton = document.createElement('button');
     redoButton.className = 'grid-controls__redo-button';
     redoButton.textContent = 'Redo';
-    redoButton.addEventListener('click', e => {
-        console.log('global redo', window.dataGridRedos);
-    });
+    redoButton.addEventListener('click', globalRedo);
 
     gridControls.appendChild(undoButton);
     gridControls.appendChild(redoButton);
     body.appendChild(gridControls);
+
+    updateUndoRedoButtonStates();
 }
 
-/* Need to figure out how to handle key event for undo/redo
- * A) Figure out how to listen for keypresses on .grid elements
- * B) Have a global (one-per-window) queue of undo Command objects and just
- *    eval them. Each action dispatcher would just have to push an Undo Command
- *    onto this stack with a reference to itself each time. But then when
- *    an 'undo' was executed it would need to push a 'redo' onto the front of
- *    the redo queue with the same dispatcher. That part seems tricky.
- * C) Only worry about ctrl+z on screens where we know there's just one grid (bad option)
- *
-function handleKeys(actionDispatch, e) {
-    console.log('Handle keys', e);
+function handleKeys(e) {
     let key = e.key;
 
     if (e.ctrlKey)
@@ -60,19 +50,56 @@ function handleKeys(actionDispatch, e) {
 
     switch (key) {
         case "ctrl+z":
-            undo();
+            globalUndo();
             break;
         case "ctrl+Z":
-            redo();
+            globalRedo();
             break;
     }
-
-    function undo() {
-        actionDispatch({action: 'undo'});
-    }
-
-    function redo() {
-        actionDispatch({action: 'redo'});
-    }
 }
- */
+
+function globalUndo() {
+    const lastUndoRedoCommand = window.dataGridUndos.pop();
+    console.log('Global Undo', window.dataGridUndos);
+    if (lastUndoRedoCommand) {
+        lastUndoRedoCommand.undo();
+        window.dataGridRedos.push(lastUndoRedoCommand);
+    }
+    updateUndoRedoButtonStates();
+}
+
+function globalRedo() {
+    const firstRedoCommand = window.dataGridRedos.shift();
+    console.log('Global Redo', window.dataGridRedos);
+    if (firstRedoCommand) {
+        firstRedoCommand.redo();
+        window.dataGridUndos.push(firstRedoCommand);
+    }
+    updateUndoRedoButtonStates();
+}
+
+function updateUndoRedoButtonStates() {
+    const undoButton = document.querySelector('.grid-controls__undo-button');
+    const redoButton = document.querySelector('.grid-controls__redo-button');
+
+    if (undoButton == null || redoButton == null)
+        return;
+
+    if (thereAreUndos())
+        undoButton.classList.remove('grid-controls__undo-button--disabled');
+    else
+        undoButton.classList.add('grid-controls__undo-button--disabled');
+
+    if (thereAreRedos())
+        redoButton.classList.remove('grid-controls__redo-button--disabled');
+    else
+        redoButton.classList.add('grid-controls__redo-button--disabled');
+}
+
+function thereAreUndos() {
+    return window.dataGridUndos && window.dataGridUndos.length;
+}
+
+function thereAreRedos() {
+    return window.dataGridRedos && window.dataGridRedos.length;
+}

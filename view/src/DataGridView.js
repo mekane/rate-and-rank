@@ -21,15 +21,37 @@ import {Grid as GridView} from './Grid';
  */
 export default function DataGridView(attachElement, actionDispatcher) {
     let vnode = toVNode(attachElement);
-    const actionDispatch = actionDispatcher.send;
+
+    /* The action dispatcher that we pass to the component is wrapped in this,
+     * which will add global undo records each time we do an action. Note that
+     * the 'undo' action it sends is not wrapped, so it shouldn't generate an
+     * additional undo record!
+     *
+     * This setup depends on the DataGrid always adding a new state to history
+     * when it gets an action message, even if it didn't modify the state.
+     */
+    const actionDispatch = function(actionData) {
+        actionDispatcher.send(actionData);
+        addGlobalUndoEntry(actionDispatcher);
+    }
     actionDispatcher.subscribe(render);
 
     waitForDocumentReady(document)
         .then(actionDispatcher.send({action: 'refresh'}));
 
     function render(nextState) {
-        console.log('Got new state from actionDispatcher module', nextState);
+        //console.log('Got new state from actionDispatcher module', nextState);
         const nextView = GridView(nextState, actionDispatch);
         vnode = patch(vnode, nextView);
     }
+}
+
+function addGlobalUndoEntry(actionDispatcher) {
+    const command = {
+        undo: _ => actionDispatcher.send({action: 'undo'}),
+        redo: _ => actionDispatcher.send({action: 'redo'})
+    }
+
+    window.dataGridUndos.push(command);
+    window.dataGridRedos = [];
 }

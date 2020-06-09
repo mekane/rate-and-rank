@@ -17,7 +17,7 @@ function handleMessage(state = {}, action = '', data) {
         case 'setfield':
             return nextState(state, {'rows': setField(state.config, state.rows, data)});
         default:
-            console.log(`UNKNOWN ACTION ${action}`);
+            //console.log(`UNKNOWN ACTION ${action}`);
             return state;
     }
 }

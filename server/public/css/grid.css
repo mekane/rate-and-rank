@@ -71,7 +71,7 @@ div.image-drop-target.drophighlight {
 }
 
 .grid {
-    margin: 8px auto;
+    margin: 52px auto;
 }
 
 .grid > .title {
@@ -132,4 +132,10 @@ div.row:hover {
 
 .add-row:hover {
     background: #393;
+}
+
+.grid-controls__undo-button--disabled,
+.grid-controls__redo-button--disabled {
+    background-color: #999;
+    pointer-events: none;
 }
