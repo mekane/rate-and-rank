@@ -3,9 +3,11 @@
 <h1>App View for Data Grid {{gridName}}</h1>
 
 <div id="grid"></div>
-
 <script type="text/javascript" src="/jsonApiClient.bundle.js"></script>
 <script type="text/javascript">
-    DataGrid.initGrid('#grid', '{{& actionUrl }}');
+    window.initGlobalUndos = {{ numberOfUndos }};
+    window.initGlobalRedos = {{ numberOfRedos }};
+
+    DataGrid.initGrid('#grid', '{{& actionUrl }}', '{{& getStateUrl }}');
 </script>
 {{> pageEnd }}

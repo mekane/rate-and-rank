@@ -12,13 +12,21 @@
  * functions which will be passed the current state after the action complete. If
  * you pass an object with a function property named 'update' that will be called.
  */
-export default function JsonApiActionDispatcher(url) {
+export default function JsonApiActionDispatcher(putActionUrl, getStateUrl) {
     const subscribers = new Set();
+    let lastState = false;
+
+    if (getStateUrl) {
+        fetch(getStateUrl, {headers: {'Accept': 'application/json'}})
+            .then(res => res.json())
+            .then(nextState => {
+                lastState = nextState;
+                notifySubscribers(nextState);
+            });
+    }
 
     function send(action) {
         const body = JSON.stringify({action});
-
-        console.log('send ' + body);
         const options = {
             method: 'PUT',
             credentials: 'same-origin',
@@ -29,12 +37,13 @@ export default function JsonApiActionDispatcher(url) {
             body
         };
 
-        return fetch(url, options)
+        return fetch(putActionUrl, options)
             .then(res => res.json())
-            .then(result => {
+            .then(nextState => {
                 //TODO: check for error status
-                notifySubscribers(result);
-                return result;
+                lastState = nextState;
+                notifySubscribers(nextState);
+                return nextState;
             })
             .catch(err => {
                 console.log('Network Error', err);
@@ -43,6 +52,8 @@ export default function JsonApiActionDispatcher(url) {
 
     function subscribe(listener) {
         subscribers.add(listener);
+        if (lastState)
+            notifySubscriber(listener, lastState);
     }
 
     return {
@@ -51,11 +62,13 @@ export default function JsonApiActionDispatcher(url) {
     }
 
     function notifySubscribers(newState) {
-        subscribers.forEach(s => {
-            if (typeof s === 'function')
-                s(newState);
-            else if (typeof s.update === 'function')
-                s.update(newState);
-        });
+        subscribers.forEach(s => notifySubscriber(s, newState));
+    }
+
+    function notifySubscriber(subscriber, newState) {
+        if (typeof subscriber === 'function')
+            subscriber(newState);
+        else if (typeof subscriber.update === 'function')
+            subscriber.update(newState);
     }
 }

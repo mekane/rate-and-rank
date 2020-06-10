@@ -22,6 +22,15 @@ import {Grid as GridView} from './Grid';
 export default function DataGridView(attachElement, actionDispatcher) {
     let vnode = toVNode(attachElement);
 
+    if (window.initGlobalUndos) {
+        for (let i = 0; i < window.initGlobalUndos; i++)
+            addGlobalUndoEntry(actionDispatcher);
+    }
+    if (window.initGlobalRedos) {
+        for (let i = 0; i < window.initGlobalRedos; i++)
+            addGlobalRedoEntry(actionDispatcher);
+    }
+
     /* The action dispatcher that we pass to the component is wrapped in this,
      * which will add global undo records each time we do an action. Note that
      * the 'undo' action it sends is not wrapped, so it shouldn't generate an
@@ -34,10 +43,9 @@ export default function DataGridView(attachElement, actionDispatcher) {
         actionDispatcher.send(actionData);
         addGlobalUndoEntry(actionDispatcher);
     }
-    actionDispatcher.subscribe(render);
 
     waitForDocumentReady(document)
-        .then(actionDispatcher.send({action: 'refresh'}));
+        .then(_ => actionDispatcher.subscribe(render));
 
     function render(nextState) {
         //console.log('Got new state from actionDispatcher module', nextState);
@@ -54,4 +62,13 @@ function addGlobalUndoEntry(actionDispatcher) {
 
     window.dataGridUndos.push(command);
     window.dataGridRedos = [];
+}
+
+function addGlobalRedoEntry(actionDispatcher) {
+    const command = {
+        undo: _ => actionDispatcher.send({action: 'undo'}),
+        redo: _ => actionDispatcher.send({action: 'redo'})
+    }
+
+    window.dataGridRedos.push(command);
 }

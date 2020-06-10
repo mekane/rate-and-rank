@@ -21,8 +21,9 @@ export default function InMemoryDataGridActionDispatcher(config, rows) {
         return Promise.resolve(nextState);
     }
 
-    function subscribe(listener) {
-        subscribers.add(listener);
+    function subscribe(subscriber) {
+        subscribers.add(subscriber);
+        notifySubscriber(subscriber, grid.getState());
     }
 
     return {
@@ -31,11 +32,13 @@ export default function InMemoryDataGridActionDispatcher(config, rows) {
     }
 
     function notifySubscribers(newState) {
-        subscribers.forEach(s => {
-            if (typeof s === 'function')
-                s(newState);
-            else if (typeof s.update === 'function')
-                s.update(newState);
-        });
+        subscribers.forEach(s => notifySubscriber(s, newState));
+    }
+
+    function notifySubscriber(subscriber, newState) {
+        if (typeof subscriber === 'function')
+            subscriber(newState);
+        else if (typeof subscriber.update === 'function')
+            subscriber.update(newState);
     }
 }

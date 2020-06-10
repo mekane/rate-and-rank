@@ -2,9 +2,9 @@ import JsonApiActionDispatcher from './src/JsonApiActionDispatcher';
 import DataGridView from './src/DataGridView';
 import initializeGlobalGridControls from "./src/globalGridControls";
 
-export function initGrid(selector, actionUrl) {
+export function initGrid(selector, actionUrl, getStateUrl) {
     const el = document.querySelector(selector);
-    const apiActionDispatcher = JsonApiActionDispatcher(actionUrl);
+    const apiActionDispatcher = JsonApiActionDispatcher(actionUrl, getStateUrl);
     DataGridView(el, apiActionDispatcher);
     console.log('DataGrid initialized on element ' + selector);
 }

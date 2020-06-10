@@ -265,16 +265,17 @@ function getGrid(req, res) {
         });
     }
 
-    const currentState = grid.getState();
     const gridName = grid.getState().config.name;
-    const tempData = JSON.stringify(currentState);
+    const numberOfUndos = grid.getUndoCount();
+    const numberOfRedos = grid.getRedoCount();
 
     const actionUrl = baseUrl + `/grid/${gridId}/action`;
+    const getStateUrl = baseUrl + `/grid/${gridId}`;
 
     return res.format({
         html: _ => {
             logRequest(req, html, `show grid application page for grid ${gridId}`);
-            res.render('grid', {title: gridName, gridName, actionUrl, tempData});
+            res.render('grid', {title: gridName, gridName, actionUrl, getStateUrl, numberOfUndos, numberOfRedos});
         },
         json: _ => {
             logRequest(req, json, `return grid state for grid ${gridId}`);
