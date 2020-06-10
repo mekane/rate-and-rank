@@ -1,7 +1,5 @@
-//The component view for a DataGrid
-import {getGridRowStyles} from "./viewHelpers";
 import {Row} from './Row';
-
+import {getGridRowStyles} from "./viewHelpers";
 const h = require('snabbdom/h').default;
 
 export function Grid(state, actionDispatch) {

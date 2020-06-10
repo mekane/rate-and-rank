@@ -1,8 +1,8 @@
-import {RankCell} from "./RankCell";
-
-const h = require('snabbdom/h').default;
 import {GridCell} from './GridCell';
+import {RankCell} from "./RankCell";
 import {getGridRowStyles} from "./viewHelpers";
+import {addActiveDragClassToParentGrid} from "./rowDragHelpers";
+const h = require('snabbdom/h').default;
 
 //TODO: refactor out duplicated code
 const rowDataType = 'text/actionjson';
@@ -34,8 +34,7 @@ export function Row(rowValues, rowIndex, columns, actionDispatch) {
         const el = event.currentTarget;
         const rowData = JSON.stringify({action: 'moveRow', rowIndex});
 
-        const gridContainer = el.closest('.grid');
-        gridContainer.classList.add('drag-active');
+        addActiveDragClassToParentGrid(el);
         el.classList.add('dragging');
 
         dt.setData(rowDataType, rowData);
