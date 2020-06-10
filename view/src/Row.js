@@ -1,7 +1,7 @@
 import {GridCell} from './GridCell';
 import {RankCell} from "./RankCell";
 import {getGridRowStyles} from "./viewHelpers";
-import {addActiveDragClassToParentGrid} from "./rowDragHelpers";
+import {addActiveDragClassToParentGrid, removeActiveDragClassFromParentGrid} from "./rowDragHelpers";
 const h = require('snabbdom/h').default;
 
 //TODO: refactor out duplicated code
@@ -63,9 +63,7 @@ export function Row(rowValues, rowIndex, columns, actionDispatch) {
     function dragEnded(event) {
         console.log('row drag ended');
         const el = event.currentTarget;
-        //TODO: put this repeated code in a function
-        const gridContainer = el.closest('.grid');
-        gridContainer.classList.remove('drag-active');
+        removeActiveDragClassFromParentGrid(el);
     }
 
     function rowDropped(event) {

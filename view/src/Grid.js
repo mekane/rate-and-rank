@@ -1,5 +1,6 @@
 import {Row} from './Row';
 import {getGridRowStyles} from "./viewHelpers";
+import {removeActiveDragClassFromParentGrid} from "./rowDragHelpers";
 const h = require('snabbdom/h').default;
 
 export function Grid(state, actionDispatch) {
@@ -91,10 +92,7 @@ function rowDropped(actionDispatch, event) {
     const el = event.currentTarget;
 
     el.classList.remove('drophighlight');
-
-    //TODO: put this repeated code in a function
-    const gridContainer = el.closest('.grid');
-    gridContainer.classList.remove('drag-active');
+    removeActiveDragClassFromParentGrid(el);
 
     const droppedRow = getDraggingRowFromData(event);
     const removeRow = {action: 'removerow', rowIndex: droppedRow.rowIndex};
