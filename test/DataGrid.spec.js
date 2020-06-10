@@ -157,9 +157,9 @@ describe('Removing rows', () => {
         const previousState = dataGrid.getState();
 
         dataGrid.send({action: 'removeRow'});
-        dataGrid.send({action: 'removeRow', index: -1});
-        dataGrid.send({action: 'removeRow', index: 99});
-        dataGrid.send({action: 'removeRow', index: 'none'});
+        dataGrid.send({action: 'removeRow', rowIndex: -1});
+        dataGrid.send({action: 'removeRow', rowIndex: 99});
+        dataGrid.send({action: 'removeRow', rowIndex: 'none'});
 
         const newState = dataGrid.getState();
         expect(newState.rows).to.be.an('array').with.length(4);
@@ -175,7 +175,7 @@ describe('Removing rows', () => {
             {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
         ];
 
-        dataGrid.send({action: 'removeRow', index: 1});
+        dataGrid.send({action: 'removeRow', rowIndex: 1});
 
         expect(dataGrid.getRows()).to.deep.equal(expectedRows);
     });
@@ -188,7 +188,7 @@ describe('Removing rows', () => {
             {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
         ];
 
-        dataGrid.send({action: 'removeRow', index: 1, count: 2});
+        dataGrid.send({action: 'removeRow', rowIndex: 1, count: 2});
 
         expect(dataGrid.getRows()).to.deep.equal(expectedRows);
     });

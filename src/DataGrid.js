@@ -106,7 +106,7 @@ function moveRow(previousState, data) {
 }
 
 function removeRows(previousState, data) {
-    let start = parseInt(data.index);
+    let start = parseInt(data.rowIndex);
     if (isNaN(start) || start < 0 || start > previousState.length)
         return previousState;
 
