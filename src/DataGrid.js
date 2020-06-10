@@ -17,7 +17,7 @@ function handleMessage(state = {}, action = '', data) {
         case 'setfield':
             return nextState(state, {'rows': setField(state.config, state.rows, data)});
         default:
-            console.log(`UNKNOWN ACTION ${action}`);
+            //console.log(`UNKNOWN ACTION ${action}`);
             return state;
     }
 }
@@ -162,10 +162,19 @@ function setField(config, previousState, data) {
  * given configuration and optionally containing some initial rows.
  *****************************************************************************/
 function DataGrid(initialConfig, initialRows = []) {
+    if (!initialConfig)
+        return null;
+
+    if (typeof initialConfig === 'string') {
+        return fromJson(initialConfig);
+    }
+
 
     const result = schemaValidator.validate(initialConfig, dataGridConfigSchema);
-    if (result.errors[0])
-        throw new Error('Invalid configuration: ' + result.errors[0].stack);
+    if (result.errors[0]) {
+        console.error('Invalid configuration: ' + result.errors[0].stack);
+        return null;
+    }
 
     const rows = initialRows.reduce((prevState, nextRow) => {
         return addRow(initialConfig, prevState, {row: nextRow});
@@ -212,15 +221,37 @@ function DataGrid(initialConfig, initialRows = []) {
         }
     }
 
+    function toJson() {
+        return JSON.stringify(state);
+    }
+
     return {
         getRedoCount,
         getRows: _ => state.rows,
         getState,
         getUndoCount,
-        send
+        send,
+        toJson
     };
 }
 
+function fromJson(jsonString) {
+    let parsed = false;
+
+    try {
+        parsed = JSON.parse(jsonString);
+    } catch (e) {
+        console.log('Error deserializing DataGrid from JSON ', e);
+        console.log('  bad json: ' + jsonString);
+        return null;
+    }
+
+    if (typeof parsed === 'object' && parsed.config && parsed.rows) {
+        return DataGrid(parsed.config, parsed.rows);
+    }
+
+    return null;
+}
 
 function copy(object) {
     return JSON.parse(JSON.stringify(object));

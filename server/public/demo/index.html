@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+    <title>Rate and Rank Demos</title>
+    <link rel="stylesheet" href="/css/grid.css">
+</head>
+<body>
+<h1>Rate and Rank Demos</h1>
+<p>Note: changes made to these grids will not persist! Please <a href="/login">log in</a> to make a permanent grid.</p>
+<div id="grid1"></div>
+
+<div id="grid2"></div>
+
+<script type="text/javascript" src="browserDemo.bundle.js"></script>
+<script>
+    const config1 = {
+        name: 'Basic Grid',
+        columns: [
+            {name: 'Column One'},
+            {name: 'Column Two'}
+        ]
+    };
+    const rows1 = [{}, {}];
+    DataGrid.initGrid('#grid1', config1, rows1);
+
+    const config2 = {
+        name: 'Basic Grid',
+        columns: [
+            {name: 'Column One'},
+            {name: 'Column Two'}
+        ]
+    };
+    const rows2 = [{}, {}];
+    DataGrid.initGrid('#grid2', config2, rows2);
+</script>
+</body>
+</html>

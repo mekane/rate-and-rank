@@ -2,10 +2,10 @@ import {getGridCellClassName, preventTab, tabToNextCell} from "./viewHelpers";
 
 const h = require('snabbdom/h').default;
 
-export function GridCell(column, rawContent, rowIndex) {
+export function GridCell(column, rawContent, rowIndex, actionDispatch) {
     const data = {
         on: {
-            click: makeEditable(column, rowIndex)
+            click: makeEditable(column, rowIndex, actionDispatch)
         }
     };
     const className = getGridCellClassName(column.name, rowIndex);
@@ -27,7 +27,7 @@ export function GridCell(column, rawContent, rowIndex) {
     function makeImageCellContent(imgSrc) {
         const children = [];
 
-        if (isValid(imgSrc)) {
+        if (isValidImgSrcValue(imgSrc)) {
             const imgData = {
                 attrs: {
                     src: imgSrc,
@@ -44,7 +44,7 @@ export function GridCell(column, rawContent, rowIndex) {
                     dragenter: allowImageDrops,
                     dragover: allowImageDrops,
                     dragleave: unHighlight,
-                    drop: [handleImageDrop, rowIndex, column.name]
+                    drop: [handleImageDrop, rowIndex, column.name, actionDispatch]
                     //paste: [handleImagePaste, rowIndex, column.name]
                 }
             };
@@ -72,7 +72,7 @@ export function GridCell(column, rawContent, rowIndex) {
 }
 
 //TODO: could improve this. Add check for "data:image/..." or "http://" at beginning
-function isValid(string) {
+function isValidImgSrcValue(string) {
     return string && string.length;
 }
 
@@ -97,17 +97,17 @@ function unHighlight(e) {
     e.currentTarget.classList.remove('drophighlight');
 }
 
-function handleImageDrop(rowIndex, columnName, e) {
+function handleImageDrop(rowIndex, columnName, actionDispatch, e) {
     e.preventDefault();
     unHighlight(e);
     processDataTransfer(e.dataTransfer)
-        .then(imageData => saveImageData(rowIndex, columnName, imageData));
+        .then(imageData => saveImageData(rowIndex, columnName, actionDispatch, imageData));
 }
 
-function handleImagePaste(rowIndex, columnName, e) {
+function handleImagePaste(rowIndex, columnName, actionDispatch, e) {
     console.log('paste');
     processDataTransfer(e.clipboardData)
-        .then(imageData => saveImageData(rowIndex, columnName, imageData));
+        .then(imageData => saveImageData(rowIndex, columnName, actionDispatch, imageData));
 }
 
 function processDataTransfer(dataTransfer) {
@@ -165,11 +165,11 @@ function saveImageDataFromLink(url) {
     });
 }
 
-function saveImageData(rowIndex, columnName, value) {
-    window.action({action: 'setField', rowIndex, columnName, value});
+function saveImageData(rowIndex, columnName, actionDispatch, value) {
+    actionDispatch({action: 'setField', rowIndex, columnName, value});
 }
 
-function makeEditable(columnDef, rowIndex) {
+function makeEditable(columnDef, rowIndex, actionDispatch) {
     if (columnDef.type === 'image') {
         console.log('cell clicked');
         return; //TODO: implement
@@ -196,7 +196,7 @@ function makeEditable(columnDef, rowIndex) {
         function submit() {
             actionData.value = input.value;
             //input.blur();
-            window.action(actionData);
+            actionDispatch(actionData);
         }
 
         function cancel() {

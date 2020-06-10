@@ -4,7 +4,7 @@ import {Row} from './Row';
 
 const h = require('snabbdom/h').default;
 
-export function Grid(state, action) {
+export function Grid(state, actionDispatch) {
     const columns = state.config.columns;
 
     const data = {
@@ -12,16 +12,16 @@ export function Grid(state, action) {
             dragenter: allowAndIgnoreDrops,
             dragover: allowAndIgnoreDrops,
             drop: allowAndIgnoreDrops
-        },
-        style: {
-            'min-height': '100vh'
         }
     };
 
+    const title = h('div.title', state.config.name);
     const headerRow = getColumnHeaders(columns);
-    const rows = state.rows.map((row, i) => Row(row, i, columns));
+    const rows = state.rows.map((row, i) => Row(row, i, columns, actionDispatch));
+    const controls = makeControls(actionDispatch);
+    const children = [title, headerRow].concat(rows).concat(controls);
 
-    return h('div.grid', data, [headerRow].concat(rows));
+    return h('div.grid', data, children);
 
 
     function getColumnHeaders(columns) {
@@ -36,6 +36,22 @@ export function Grid(state, action) {
     function gridColumnHeader(column) {
         return h('div.grid-column-header', column.name);
     }
+}
+
+function makeControls(actionDispatch) {
+    const controls = [
+        makeAddRow(actionDispatch)
+    ];
+    return h('div.controls', {}, controls);
+}
+
+function makeAddRow(actionDispatch) {
+    const data = {
+        on: {
+            click: e => actionDispatch({action: 'addRow'})
+        }
+    };
+    return h('button.add-row', data, '+ Add Row');
 }
 
 /**

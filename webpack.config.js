@@ -1,10 +1,14 @@
 const path = require('path');
 
 module.exports = {
-    entry: './view/src/rateAndRank.js',
-    mode: 'development',
+    entry: {
+        'demo/browserDemo': './view/index.browserDemo.js',
+        jsonApiClient: './view/index.jsonApiClient.js',
+    },
+    mode: 'production',
     output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'demo')
+        filename: '[name].bundle.js',
+        library: 'DataGrid',
+        path: path.resolve(__dirname, 'server', 'public')
     }
 };
