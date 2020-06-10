@@ -7,6 +7,6 @@ export function initGrid(selector, config, rows) {
     const actionDispatcher = InMemoryDataGridActionDispatcher(config, rows);
     DataGridView(el, actionDispatcher);
     console.log('DataGrid initialized on element ' + selector);
-
-    initializeGlobalGridControls();
 }
+
+initializeGlobalGridControls();

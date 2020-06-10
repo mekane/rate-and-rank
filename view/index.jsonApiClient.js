@@ -7,10 +7,10 @@ export function initGrid(selector, actionUrl) {
     const apiActionDispatcher = JsonApiActionDispatcher(actionUrl);
     DataGridView(el, apiActionDispatcher);
     console.log('DataGrid initialized on element ' + selector);
-
-    initializeGlobalGridControls();
-    /* Note for later: this now causes the undo history to disappear on page
-     * refresh since the global lists on the window are empty;
-     * Could it work to always try dispatching an undo action?
-     */
 }
+
+initializeGlobalGridControls();
+/* Note for later: this now causes the undo history to disappear on page
+ * refresh since the global lists on the window are empty;
+ * Could it work to always try dispatching an undo action?
+ */
