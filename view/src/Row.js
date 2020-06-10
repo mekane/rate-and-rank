@@ -4,6 +4,7 @@ const h = require('snabbdom/h').default;
 import {GridCell} from './GridCell';
 import {getGridRowStyles} from "./viewHelpers";
 
+//TODO: refactor out duplicated code
 const rowDataType = 'text/actionjson';
 
 export function Row(rowValues, rowIndex, columns, actionDispatch) {
@@ -19,6 +20,7 @@ export function Row(rowValues, rowIndex, columns, actionDispatch) {
             dragenter: allowRowDrops,
             dragover: allowRowDrops,
             dragleave: dragLeave,
+            dragend: dragEnded,
             drop: rowDropped
         },
         style: getGridRowStyles(columns.length)
@@ -29,27 +31,42 @@ export function Row(rowValues, rowIndex, columns, actionDispatch) {
 
     function initializeDragRow(event) {
         const dt = event.dataTransfer;
+        const el = event.currentTarget;
         const rowData = JSON.stringify({action: 'moveRow', rowIndex});
 
-        event.currentTarget.classList.add('dragging');
+        const gridContainer = el.closest('.grid');
+        gridContainer.classList.add('drag-active');
+        el.classList.add('dragging');
 
         dt.setData(rowDataType, rowData);
         dt.effectAllowed = 'move';
     }
 
+    //TODO: refactor common code to helpers
     function allowRowDrops(event) {
-        if (couldDropHere(event.dataTransfer)) {
+        if (couldDropRowHere(event.dataTransfer)) {
             event.preventDefault();
             event.currentTarget.classList.add('drophighlight');
         }
     }
 
-    function couldDropHere(dt) {
+    //TODO: refactor common code to helpers
+    function couldDropRowHere(dt) {
         return (dt.effectAllowed === 'move' && dt.types.includes(rowDataType));
     }
 
     function dragLeave(event) {
-        event.currentTarget.classList.remove('drophighlight');
+        //TODO: research currentTarget vs. target
+        const el = event.currentTarget;
+        el.classList.remove('drophighlight');
+    }
+
+    function dragEnded(event) {
+        console.log('row drag ended');
+        const el = event.currentTarget;
+        //TODO: put this repeated code in a function
+        const gridContainer = el.closest('.grid');
+        gridContainer.classList.remove('drag-active');
     }
 
     function rowDropped(event) {

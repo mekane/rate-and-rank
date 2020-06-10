@@ -40,7 +40,8 @@ export function Grid(state, actionDispatch) {
 
 function makeControls(actionDispatch) {
     const controls = [
-        makeAddRow(actionDispatch)
+        makeAddRow(actionDispatch),
+        makeRemoveRow(actionDispatch)
     ];
     return h('div.controls', {}, controls);
 }
@@ -53,6 +54,74 @@ function makeAddRow(actionDispatch) {
     };
     return h('button.add-row', data, '+ Add Row');
 }
+
+function makeRemoveRow(actionDispatch) {
+    const data = {
+        on: {
+            dragenter: allowRowDrops,
+            dragover: allowRowDrops,
+            dragleave: dragLeave,
+            drop: [rowDropped, actionDispatch]
+        }
+    };
+    return h('div.remove-row', data, 'Drop Here to Remove Row');
+}
+
+//TODO: refactor out duplicated code
+function allowRowDrops(event) {
+    if (couldDropRowHere(event.dataTransfer)) {
+        event.preventDefault();
+        event.currentTarget.classList.add('drophighlight');
+    }
+}
+
+const rowDataType = 'text/actionjson';
+
+function couldDropRowHere(dt) {
+    return (dt.effectAllowed === 'move' && dt.types.includes(rowDataType));
+}
+
+function dragLeave(event) {
+    event.currentTarget.classList.remove('drophighlight');
+}
+
+function rowDropped(actionDispatch, event) {
+    console.log('row dropped', event);
+
+    event.preventDefault();
+
+    const el = event.currentTarget;
+
+    el.classList.remove('drophighlight');
+
+    //TODO: put this repeated code in a function
+    const gridContainer = el.closest('.grid');
+    gridContainer.classList.remove('drag-active');
+
+    const droppedRow = getDraggingRowFromData(event);
+    const removeRow = {action: 'removerow', rowIndex: droppedRow.rowIndex};
+    console.log('remove', removeRow);
+    actionDispatch(removeRow);
+}
+
+function getDraggingRowFromData(event) {
+    const dataString = event.dataTransfer.getData(rowDataType);
+
+    if (dataString === '')
+        return {}; //ignore non-row drops
+
+    let moveRow = {};
+
+    try {
+        moveRow = JSON.parse(dataString);
+    } catch (err) {
+        console.log('Error processing row drop ' + err);
+    }
+
+    return moveRow;
+}
+
+// -------- duplicate code -----------
 
 /**
  * This indicates that dropping is allowed anywhere in the grid.
