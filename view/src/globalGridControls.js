@@ -13,7 +13,7 @@ function initGlobalUndoHandler() {
     const body = document.querySelector('body');
     body.addEventListener('keyup', handleKeys);
 
-    const gridControls = document.createElement('div');
+    const gridControls = document.createElement('footer');
     gridControls.className = 'grid-controls';
     gridControls.addEventListener('mouseenter', updateUndoRedoButtonStates);
 
@@ -55,7 +55,7 @@ function globalUndo() {
     console.log('Global Undo', window.dataGridUndos);
     if (lastUndoRedoCommand) {
         lastUndoRedoCommand.undo();
-        window.dataGridRedos.push(lastUndoRedoCommand);
+        window.dataGridRedos.unshift(lastUndoRedoCommand);
     }
     updateUndoRedoButtonStates();
 }

@@ -71,7 +71,17 @@ div.image-drop-target.drophighlight {
 }
 
 .grid {
-    margin: 52px auto;
+    margin: 52px 0;
+}
+
+.grid.expand {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.grid.shrink {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .grid > .title {

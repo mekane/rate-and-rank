@@ -3,8 +3,11 @@
 }
 
 body {
-    background: #eee;
+    background: white;
+    display: flex;
+    flex-direction: column;
     font-family: Tahoma, Geneva, sans-serif;
+    min-height: 100vh;
 }
 
 h1 {
@@ -34,4 +37,8 @@ input[type="submit"] {
 textarea {
     width: 300px;
     height: 200px;
+}
+
+footer {
+    margin-top: auto;
 }
