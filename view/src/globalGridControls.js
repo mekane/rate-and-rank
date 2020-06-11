@@ -8,6 +8,24 @@ export default function initializeGlobalGridControls() {
         .then(initGlobalUndoHandler);
 }
 
+export function addGlobalUndoEntry(actionDispatcher) {
+    const command = {
+        undo: _ => actionDispatcher.send({action: 'undo'}),
+        redo: _ => actionDispatcher.send({action: 'redo'})
+    }
+
+    window.dataGridUndos.push(command);
+    window.dataGridRedos = [];
+}
+
+export function addGlobalRedoEntry(actionDispatcher) {
+    const command = {
+        undo: _ => actionDispatcher.send({action: 'undo'}),
+        redo: _ => actionDispatcher.send({action: 'redo'})
+    }
+
+    window.dataGridRedos.push(command);
+}
 
 function initGlobalUndoHandler() {
     const body = document.querySelector('body');
@@ -15,7 +33,6 @@ function initGlobalUndoHandler() {
 
     const gridControls = document.createElement('footer');
     gridControls.className = 'grid-controls';
-    gridControls.addEventListener('mouseenter', updateUndoRedoButtonStates);
 
     const undoButton = document.createElement('button');
     undoButton.className = 'grid-controls__undo-button';
@@ -70,7 +87,7 @@ function globalRedo() {
     updateUndoRedoButtonStates();
 }
 
-function updateUndoRedoButtonStates() {
+export function updateUndoRedoButtonStates() {
     const undoButton = document.querySelector('.grid-controls__undo-button');
     const redoButton = document.querySelector('.grid-controls__redo-button');
 

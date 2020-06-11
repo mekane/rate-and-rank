@@ -14,6 +14,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 ]);
 
 import {Grid as GridView} from './Grid';
+import {addGlobalRedoEntry, addGlobalUndoEntry, updateUndoRedoButtonStates} from "./globalGridControls";
 
 /**
  * attachElement - root virtual node that the render function hooks into
@@ -42,6 +43,7 @@ export default function DataGridView(attachElement, actionDispatcher) {
     const actionDispatch = function(actionData) {
         actionDispatcher.send(actionData);
         addGlobalUndoEntry(actionDispatcher);
+        updateUndoRedoButtonStates();
     }
 
     waitForDocumentReady(document)
@@ -52,23 +54,4 @@ export default function DataGridView(attachElement, actionDispatcher) {
         const nextView = GridView(nextState, actionDispatch);
         vnode = patch(vnode, nextView);
     }
-}
-
-function addGlobalUndoEntry(actionDispatcher) {
-    const command = {
-        undo: _ => actionDispatcher.send({action: 'undo'}),
-        redo: _ => actionDispatcher.send({action: 'redo'})
-    }
-
-    window.dataGridUndos.push(command);
-    window.dataGridRedos = [];
-}
-
-function addGlobalRedoEntry(actionDispatcher) {
-    const command = {
-        undo: _ => actionDispatcher.send({action: 'undo'}),
-        redo: _ => actionDispatcher.send({action: 'redo'})
-    }
-
-    window.dataGridRedos.push(command);
 }
