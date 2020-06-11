@@ -7,25 +7,6 @@ html {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-input {
-    background: #eee;
-    border: 0;
-    bottom: 0;
-    color: inherit;
-    font-size: inherit;
-    height: 100%;
-    left: 0;
-    padding: 4px;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 100%;
-}
-
-input:focus {
-    outline: 2px solid #999;
-}
-
 button {
     align-items: center;
     background: #666;
@@ -55,6 +36,36 @@ button:focus {
     border-style: none;
     outline: none;
 }
+
+.cell-edit-overlay {
+    background: rgb(250, 240, 255);
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+}
+
+input,
+textarea {
+    border: 0;
+    color: inherit;
+    font-size: inherit;
+    padding: 4px;
+    width: 100%;
+}
+
+textarea {
+    height: 100%;
+}
+
+input:focus,
+textarea:focus {
+    outline: 2px solid rgba(55, 55, 199, 0.6);
+}
+
 
 div.image-drop-target {
     margin: 8px;

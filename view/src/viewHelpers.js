@@ -12,6 +12,7 @@ export function getGridRowStyles(numberOfColumns) {
 }
 
 export function preventTab(e) {
+    e.stopPropagation();
     if (e.key === "Tab")
         e.preventDefault();
 }
@@ -27,7 +28,7 @@ export function tabToNextCell(currentGridCell, reverse) {
     else
         nextEl = getNextGridCell(currentGridCell);
 
-    //console.log('next cell ' + (!!nextEl), nextEl);
+    console.log('next cell ' + (!!nextEl), nextEl);
 
     if (!!nextEl)
         nextEl.click();

@@ -11,7 +11,7 @@ const h = require('snabbdom/h').default;
 export function GridCell(column, rawContent, rowIndex, actionDispatch) {
     const data = {
         on: {
-            click: makeEditable(column, rowIndex, actionDispatch)
+            click: [makeEditable, column, rowIndex, rawContent, actionDispatch]
         }
     };
     const className = getGridCellClassName(column.name, rowIndex);
@@ -179,64 +179,120 @@ function saveImageData(rowIndex, columnName, actionDispatch, value) {
     actionDispatch({action: 'setField', rowIndex, columnName, value});
 }
 
-function makeEditable(columnDef, rowIndex, actionDispatch) {
+function makeEditable(columnDef, rowIndex, originalValue, actionDispatch, event) {
     if (columnDef.type === 'image') {
-        console.log('cell clicked');
+        console.log('TODO: edit image cell');
         return; //TODO: implement
     }
 
-    let inputType = 'text';
-    if (columnDef.type === 'number')
-        inputType = 'number';
+    const gridCell = event.target;
 
-    return function(event) {
-        const gridCell = event.target;
-        const originalValue = gridCell.textContent;
-        const input = document.createElement('input');
-        input.type = inputType;
-        input.value = originalValue;
-
-        const action = 'setField';
-        const actionData = {
-            action,
-            rowIndex,
-            columnName: columnDef.name
-        }
-
-        function submit() {
-            actionData.value = input.value;
-            //input.blur();
-            actionDispatch(actionData);
-        }
-
-        function cancel() {
-            input.remove();
-            gridCell.innerHTML = originalValue;
-        }
-
-        //render()
-        gridCell.innerHTML = '';
-        gridCell.append(input);
-        input.select();
-
-        input.addEventListener('blur', cancel);
-        input.addEventListener('keydown', preventTab);
-        input.addEventListener('keyup', e => {
-            switch (e.key) {
-                case "Enter":
-                    submit();
-                    break;
-                case "Esc":
-                case "Escape":
-                    input.blur();
-                    break;
-                case "Tab":
-                    submit();
-                    tabToNextCell(gridCell, e.shiftKey);
-                    break;
-                default:
-                    return;
-            }
-        });
+    if (gridCell.querySelector('.cell-edit-overlay')) {
+        console.log('already editing, abort');
+        return;
     }
+
+    const action = 'setField';
+    const actionData = {
+        action,
+        rowIndex,
+        columnName: columnDef.name
+    }
+
+    function submit() {
+        console.log(`submit ${input.value} / ${originalValue}`);
+        if (input.value === originalValue) {
+            console.log('submit - no value change, cancel');
+            cancel();
+            return;
+        }
+
+        actionData.value = input.value;
+        console.log('submit', actionData);
+        actionDispatch(actionData);
+    }
+
+    function cancel() {
+        console.log('cancel');
+        input.removeEventListener('blur', submit);
+        editor.remove();
+    }
+
+    function tab(shift) {
+        console.log('tab ' + (shift ? 'backward' : 'forward'));
+        tabToNextCell(gridCell, shift);
+    }
+
+    const input = getCellContentEditor(columnDef, originalValue, submit, cancel, tab);
+    const editor = makeEditorOverlay(input);
+
+    gridCell.append(editor);
+    input.select();
+}
+
+function getCellContentEditor(columnDef, originalValue, submitFn, cancelFn, tabFn) {
+    const type = columnDef.type;
+    const isSingleLine = (type === 'string' || type === 'number');
+    const isTextEditor = (type !== 'image');
+
+    console.log('make editor for ' + type, originalValue);
+
+    let input;
+
+    //TODO: some kind of polymorphic dispatch rather than if/elses
+    if (type === 'image') {
+
+    }
+    else if (type === 'markdown') {
+        input = document.createElement('textarea');
+        input.textContent = originalValue;
+    }
+    else {
+        input = document.createElement('input');
+        input.type = (type === 'number' ? 'number' : 'text');
+        input.value = originalValue;
+    }
+
+    // This submits the input pretty much by default. We prevent it in cancel()
+    input.addEventListener('blur', submitFn);
+    input.addEventListener('keydown', preventTab);
+    input.addEventListener('keyup', e => {
+        e.stopPropagation();
+        switch (e.key) {
+            case "Esc":
+            case "Escape":
+                console.log('input key escape - cancel');
+                cancelFn();
+                break;
+            case "Tab":
+                console.log('input key tab - submit and tab');
+                input.blur();
+                tabFn(e.shiftKey);
+                break;
+            default:
+                return;
+        }
+    });
+
+    if (isSingleLine)
+        input.addEventListener('keyup', submitOnEnter(submitFn));
+
+    return input;
+}
+
+function submitOnEnter(submitFn) {
+    return function(e) {
+        if (e.key === 'Enter') {
+            console.log('submit on enter ' + e.key);
+            e.target.blur();
+        }
+    }
+}
+
+function makeEditorOverlay(inputEl) {
+    const editor = document.createElement('div');
+    editor.className = 'cell-edit-overlay';
+    editor.appendChild(inputEl);
+    editor.addEventListener('click', e => e.stopPropagation());
+    return editor;
 }

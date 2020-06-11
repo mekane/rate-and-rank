@@ -50,7 +50,7 @@ export default function DataGridView(attachElement, actionDispatcher) {
         .then(_ => actionDispatcher.subscribe(render));
 
     function render(nextState) {
-        //console.log('Got new state from actionDispatcher module', nextState);
+        console.log('Got new state from actionDispatcher module', nextState);
         const nextView = GridView(nextState, actionDispatch);
         vnode = patch(vnode, nextView);
     }

@@ -21,6 +21,7 @@ label {
     font-weight: bold;
 }
 
+/* Needs to be more specific, like inside a form / BEM */
 input {
     border: 1px solid #ddd;
     font-size: 16px;
@@ -32,11 +33,6 @@ input[type="submit"] {
     background-color: #555;
     color: white;
     font-weight: bold;
-}
-
-textarea {
-    width: 300px;
-    height: 200px;
 }
 
 footer {
