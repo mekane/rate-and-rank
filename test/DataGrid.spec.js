@@ -50,7 +50,8 @@ describe('The DataGrid config schema', () => {
                 {name: "Column A", type: "string", default: "Foo"},
                 {name: "column B", type: "number", default: 1},
                 {name: "column C", type: "image", default: 1},
-                {name: "Column D", type: "markdown"}
+                {name: "Column D", type: "markdown"},
+                {name: "Column E", type: "option", options: {'a': 'A'}}
             ],
         };
         expect(validate(fullConfig)).to.equal(true);
