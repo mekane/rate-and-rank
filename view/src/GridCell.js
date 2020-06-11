@@ -38,6 +38,9 @@ export function GridCell(column, rawContent, rowIndex, actionDispatch) {
             const markdown = markDown.renderInline(rawContent);
             return h('p', {props: {innerHTML: markdown}});
         }
+        else if (columnType === 'option') {
+            return column.options[rawContent];
+        }
         else
             return rawContent;
     }
