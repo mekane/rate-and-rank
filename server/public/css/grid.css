@@ -61,11 +61,15 @@ textarea {
     height: 100%;
 }
 
-input:focus,
-textarea:focus {
-    outline: 2px solid rgba(55, 55, 199, 0.6);
+select {
+    font-size: inherit;
 }
 
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid rgba(55, 55, 199, 0.6);
+}
 
 div.image-drop-target {
     margin: 8px;
