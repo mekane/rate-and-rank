@@ -1,5 +1,7 @@
 import {getGridCellClassName, preventTab, tabToNextCell} from "./viewHelpers";
 
+const htmlHelpers = require('../../src/htmlHelpers');
+
 const markdownOptions = {
     html: false, //don't allow arbitrary html in markdown blocks
     breaks: true, //convery newlines to <br>
@@ -16,6 +18,12 @@ export function GridCell(column, rawContent, rowIndex, actionDispatch) {
     };
     const className = getGridCellClassName(column.name, rowIndex);
     data['class'] = {[className]: true};
+
+    if (column.type === 'option') {
+        const optionClassName = htmlHelpers.cssSafeString(rawContent);
+        if (optionClassName)
+            data['class'][optionClassName] = true;
+    }
 
     const content = cellContent(column.type);
 
