@@ -7,7 +7,7 @@ export function getGridCellClassName(columnName, rowNumber) {
 
 export function getGridRowStyles(numberOfColumns) {
     return {
-        'grid-template-columns': `repeat(${numberOfColumns + 1}, 1fr)`
+        'grid-template-columns': `6ch repeat(${numberOfColumns}, 1fr)`
     }
 }
 
