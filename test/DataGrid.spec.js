@@ -253,6 +253,38 @@ describe('Adding rows', () => {
 });
 
 describe('Modifying rows', () => {
+    it('has no effect if a valid field specifier is not present', () => {
+        //Valid specifiers:
+        //rowIndex + columnName + value
+        //rowIndex + values
+        //columnName + value
+        //columnName + fn
+
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const previousState = dataGrid.getState();
+
+        dataGrid.send({action: 'setField'}); //nothing
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', rowIndex: 1}); //no columnName or value
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', rowIndex: 1, columnName: 'Column A'}); //no value
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', value: 'New A'}); // no rowIndex or columnName
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', values: {'Column A': 'New A'}}); // no columnName
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', columnName: 'Column A'}); // no values or fn
+        expect(dataGrid.getState()).to.equal(previousState);
+
+        dataGrid.send({action: 'setField', fn: (a, b, c) => 'whatever'});
+        expect(dataGrid.getState()).to.equal(previousState);
+    });
+
     it(`can change the value of a single field on a single row`, () => {
         const dataGrid = DataGrid(basicConfig, basicRows());
         const action = {action: 'setField', rowIndex: 1, columnName: 'Column A', value: 'New Value'};
@@ -279,6 +311,15 @@ describe('Modifying rows', () => {
             {'Column A': 'A3', 'Column B': 'B3', 'Column C': 'C3'}
         ];
         expect(dataGrid.getRows()).to.deep.equal(expectedRows);
+    });
+
+    it(`can set a field value to empty`, () => {
+        const dataGrid = DataGrid(basicConfig, basicRows());
+        const action = {action: 'setField', rowIndex: 0, columnName: 'Column A', value: ''};
+        dataGrid.send(action);
+
+        const expectedRow = {'Column A': '', 'Column B': 'B0', 'Column C': 'C0'};
+        expect(dataGrid.getRows()[0]).to.deep.equal(expectedRow);
     });
 
     it(`can change the value of multiple fields on a single row`, () => {
@@ -331,38 +372,6 @@ describe('Modifying rows', () => {
         ];
         expect(dataGrid.getRows()).to.deep.equal(expectedRows);
     });
-
-    it('has no effect if a valid field specifier is not present', () => {
-        //Valid specifiers:
-        //rowIndex + columnName + value
-        //rowIndex + values
-        //columnName + value
-        //columnName + fn
-
-        const dataGrid = DataGrid(basicConfig, basicRows());
-        const previousState = dataGrid.getState();
-
-        dataGrid.send({action: 'setField'}); //nothing
-        expect(dataGrid.getState()).to.equal(previousState);
-
-        dataGrid.send({action: 'setField', rowIndex: 1}); //no columnName or value
-        expect(dataGrid.getState()).to.equal(previousState);
-
-        dataGrid.send({action: 'setField', rowIndex: 1, columnName: 'Column A'}); //no value
-        expect(dataGrid.getState()).to.equal(previousState);
-
-        dataGrid.send({action: 'setField', value: 'New A'}); // no rowIndex or columnName
-        expect(dataGrid.getState()).to.equal(previousState);
-
-        dataGrid.send({action: 'setField', values: {'Column A': 'New A'}}); // no columnName
-        expect(dataGrid.getState()).to.equal(previousState);
-
-        dataGrid.send({action: 'setField', columnName: 'Column A'}); // no values or fn
-        expect(dataGrid.getState()).to.equal(previousState);
-
-        dataGrid.send({action: 'setField', fn: (a, b, c) => 'whatever'});
-        expect(dataGrid.getState()).to.equal(previousState);
-    })
 });
 
 describe('Reordering rows', () => {

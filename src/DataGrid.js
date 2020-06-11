@@ -125,7 +125,7 @@ function setField(config, previousState, data) {
     if (typeof data.rowIndex === 'number') {
         const rowToChange = nextState[data.rowIndex];
 
-        if (data.columnName && data.value) {
+        if (data.columnName && typeof data.value !== 'undefined') {
             rowToChange[data.columnName] = data.value;
             return nextState;
         }
