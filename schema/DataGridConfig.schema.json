@@ -13,7 +13,8 @@
           "enum": [
             "string",
             "number",
-            "image"
+            "image",
+            "markdown"
           ]
         }
       },
