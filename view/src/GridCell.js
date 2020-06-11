@@ -1,5 +1,11 @@
 import {getGridCellClassName, preventTab, tabToNextCell} from "./viewHelpers";
 
+const markdownOptions = {
+    html: false, //don't allow arbitrary html in markdown blocks
+    breaks: true, //convery newlines to <br>
+    linkify: true //automatically turn URL text into links
+};
+const markDown = require('markdown-it')(markdownOptions);
 const h = require('snabbdom/h').default;
 
 export function GridCell(column, rawContent, rowIndex, actionDispatch) {
@@ -19,6 +25,10 @@ export function GridCell(column, rawContent, rowIndex, actionDispatch) {
     function cellContent(columnType) {
         if (columnType === 'image') {
             return makeImageCellContent(rawContent);
+        }
+        else if (columnType === 'markdown') {
+            const markdown = markDown.renderInline(rawContent);
+            return h('p', {props: {innerHTML: markdown}});
         }
         else
             return rawContent;
@@ -153,7 +163,7 @@ function saveImageDataFromLink(url) {
         const image = new Image();
         image.crossOrigin = "anonymous";
 
-        image.onload = function () {
+        image.onload = function() {
             const canvas = document.createElement('canvas');
             canvas.width = this.naturalWidth; // or 'width' if you want a special/scaled size
             canvas.height = this.naturalHeight; // or 'height' if you want a special/scaled size
@@ -179,7 +189,7 @@ function makeEditable(columnDef, rowIndex, actionDispatch) {
     if (columnDef.type === 'number')
         inputType = 'number';
 
-    return function (event) {
+    return function(event) {
         const gridCell = event.target;
         const originalValue = gridCell.textContent;
         const input = document.createElement('input');

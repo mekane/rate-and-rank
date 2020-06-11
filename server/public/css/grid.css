@@ -169,3 +169,7 @@ div.row:hover {
     background-color: #999;
     pointer-events: none;
 }
+
+.grid-cell img {
+    width: 200px;
+}
