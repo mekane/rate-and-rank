@@ -238,13 +238,15 @@ function makeEditable(columnDef, rowIndex, originalValue, actionDispatch, event)
     const editor = makeEditorOverlay(input);
 
     gridCell.append(editor);
-    input.select();
+    input.focus();
+    if (typeof input.select === 'function')
+        input.select();
 }
 
 function getCellContentEditor(columnDef, originalValue, submitFn, cancelFn, tabFn) {
     const type = columnDef.type;
     const isSingleLine = (type === 'string' || type === 'number');
-    const isTextEditor = (type !== 'image');
+    const isTextEditor = (isSingleLine || type === 'markdown');
 
     console.log('make editor for ' + type, originalValue);
 
@@ -257,6 +259,23 @@ function getCellContentEditor(columnDef, originalValue, submitFn, cancelFn, tabF
     else if (type === 'markdown') {
         input = document.createElement('textarea');
         input.textContent = originalValue;
+    }
+    else if (type === 'option') {
+        input = document.createElement('select');
+
+        const emptyOption = document.createElement('option');
+        input.appendChild(emptyOption);
+
+        const values = Object.keys(columnDef.options);
+        values.forEach(value => {
+            const labelText = columnDef.options[value];
+            const option = document.createElement('option');
+            option.textContent = labelText;
+            option.value = value;
+            if (value === originalValue)
+                option.selected = true;
+            input.appendChild(option);
+        });
     }
     else {
         input = document.createElement('input');
