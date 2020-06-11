@@ -2,16 +2,10 @@ import {getGridCellClassName, preventTab, tabToNextCell} from "./viewHelpers";
 
 const h = require('snabbdom/h').default;
 
-const column = {
-    name: '__rank_column',
-    type: 'number',
-    isRankColumn: true
-}
-
 export function RankCell(rowIndex, actionDispatch) {
     const data = {
         on: {
-            click: makeEditable(column, rowIndex, actionDispatch)
+            click: [makeEditable, rowIndex, actionDispatch]
         }
     };
     const className = getGridCellClassName('__rank-column', rowIndex);
@@ -20,16 +14,10 @@ export function RankCell(rowIndex, actionDispatch) {
     return h('div.grid-cell', data, rowIndex + 1);
 }
 
-
-function makeEditable(column, rowIndex, actionDispatch) {
-    return function (event) {
-        editRank(event.target, rowIndex, actionDispatch);
-    }
-}
-
-
-function editRank(gridCell, rowIndex, actionDispatch) {
+function makeEditable(rowIndex, actionDispatch, event) {
+    const gridCell = event.target;
     const originalValue = gridCell.textContent;
+
     const input = document.createElement('input');
     input.type = 'number';
     input.min = 1;
@@ -42,6 +30,10 @@ function editRank(gridCell, rowIndex, actionDispatch) {
     }
 
     function submit() {
+        if (input.value === originalValue) {
+            console.log('edit rank: no change - cancel');
+            return;
+        }
         actionData.newIndex = input.value - 1;
         input.blur();
         actionDispatch(actionData);
@@ -52,7 +44,6 @@ function editRank(gridCell, rowIndex, actionDispatch) {
         gridCell.innerHTML = originalValue;
     }
 
-    //render()
     gridCell.innerHTML = '';
     gridCell.append(input);
     input.select();
