@@ -142,6 +142,10 @@ div.row:hover {
     position: relative;
 }
 
+.grid-cell > p {
+    margin: 0;
+}
+
 .grid > .controls {
     display: flex;
     padding: 8px 0;
