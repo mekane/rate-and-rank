@@ -63,7 +63,7 @@ const routes = [
         handler: getLogout
     },
     {
-        path: '/',
+        path: '/home',
         method: 'get',
         description: 'Show home page / lists all available routes',
         handler: getHome
@@ -193,7 +193,7 @@ function postLogin(req, res) {
         return res.format({
             html: _ => {
                 logRequest(req, html, 'successful login - redirect to homepage');
-                res.redirect('/');
+                res.redirect('/home');
             },
             json: _ => {
                 logRequest(req, json, 'successful login - send success data');
@@ -215,7 +215,7 @@ function getHome(req, res) {
         },
         json: _ => {
             logRequest(req, json, 'send all routes data');
-            const routeInfo = routes.map(route => ({
+            const routeInfo = routes.filter(r => r.description).map(route => ({
                 method: route.method,
                 path: route.path,
                 description: route.description

@@ -4,5 +4,6 @@ node_modules/
 *.bundle.js
 
 data/
+scratch/
 sessions/
 test/fileStoreTestData/

@@ -10,6 +10,12 @@ body {
     min-height: 100vh;
 }
 
+main {
+    font-size: 20px;
+    max-width: 980px;
+    margin: 4px auto;
+}
+
 h1 {
     text-align: center;
     color: #333;
