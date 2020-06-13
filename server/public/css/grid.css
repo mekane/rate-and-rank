@@ -86,7 +86,7 @@ div.image-drop-target.drophighlight {
 }
 
 .grid {
-    margin: 52px 0;
+    margin: 0 0 52px 0;
 }
 
 .grid.expand {

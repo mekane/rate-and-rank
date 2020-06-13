@@ -82,7 +82,7 @@ export function GridCell(column, rawContent, rowIndex, actionDispatch) {
                 display: 'none'
             },
             on: {
-                change: [fileChosen, rowIndex, column.name]
+                change: [fileChosen, rowIndex, column.name, actionDispatch]
             }
         };
         const uploader = h('input', uploaderData);
@@ -119,6 +119,7 @@ function unHighlight(e) {
 }
 
 function handleImageDrop(rowIndex, columnName, actionDispatch, e) {
+    console.log('image dropped on row ' + rowIndex + ' ' + columnName, actionDispatch);
     e.preventDefault();
     unHighlight(e);
     processDataTransfer(e.dataTransfer)
@@ -155,10 +156,10 @@ function processDataTransfer(dataTransfer) {
     }
 }
 
-function fileChosen(rowIndex, columnName, e) {
+function fileChosen(rowIndex, columnName, actionDispatch, e) {
     const file = e.target.files[0];
     return saveImageDataFromFile(file)
-        .then(imageData => saveImageData(rowIndex, columnName, imageData));
+        .then(imageData => saveImageData(rowIndex, columnName, actionDispatch, imageData));
 }
 
 function saveImageDataFromFile(file) {

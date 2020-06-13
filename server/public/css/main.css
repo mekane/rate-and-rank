@@ -16,6 +16,11 @@ main {
     margin: 4px auto;
 }
 
+p.main {
+    max-width: 980px;
+    margin: 32px auto;
+}
+
 h1 {
     text-align: center;
     color: #333;
