@@ -47,6 +47,86 @@ After cloning the repository,
    * `npm start`
    * visit localhost:8666 in a browser
 
+## Guide and Reference
+
+### Creating a Data Grid
+
+You get an instance of a DataGrid by passing the the DataGrid function a config object. The configuration must conform
+to the JSON schema in _/schema/DataGridConfig.schema.json_ (you will get back `null` if there is a problem, and an error
+will be logged). Important details in the config are a name for the grid and an array of columns. Example:
+
+```javascript
+const DataGrid = require('./src/DataGrid');
+
+const config = {
+    name: 'New Grid',
+    columns: [
+        {name: 'Column A'},
+        {name: 'Column B', type: 'string'},
+        {name: 'Column C', type: 'number'}
+    ]
+};
+
+const instance = DataGrid(config);
+```
+
+#### Column Definitions
+
+The objects in the column array define the columns of the grid. They will appear in the state and in the view in the 
+same order as they are defined in the config. If no type is specified, the default is "string".
+
+Allowed column types are:
+   * `string` - plain text
+   * `number` - an integer number
+   * `markdown` - rich text, which the view will interpret according to [Markdown standard formatting rules](https://spec.commonmark.org/current/)
+   * `image` - any image data, which the view will display in the `src` attribute of an `img` tag 
+   * `option` - a single choice from a set of values. Must include an `options` property in the form of an object where 
+                the keys are the option values and the values are the labels. Example:
+        ```javascript
+        options: {
+             chicken: "Chicken",
+             fish: "Fish",
+             vegetarian: "Vegetarian"
+        }
+        ```
+
+Columns can include an optional default value which will be assigned to new rows if no initial value is included for the
+the column. 
+
+Note that the DataGrid object also has a toJson() method which returns a JSON string representation of the grid in its
+current state. This string can be passed to the `DataGrid` initializer rather than a config object to un-serialize the
+JSON string and return a new DataGrid instance with the state that was serialized.
+
+#### Initial Rows
+
+As a second argument to the `DataGrid` initializer function you may pass an array of objects which will be set as the rows
+of the grid, so that it has some content already in it. The objects should have a key for each column, and the key must
+match the column name exactly in order to match. Example rows that would go with the `instance` grid from above:
+
+```javascript
+[
+    {'Column A': 'A1', 'Column B': 'B1', 'Column C': 1},
+    {'Column A': 'A2', 'Column B': 'B2', 'Column C': 2},
+    {'Column A': 'A3', 'Column B': 'B3', 'Column C': 3}
+]
+```
+
+### Modifying a DataGrid
+
+The following operations are supported:
+
+   * Add rows
+   * Remove rows (one at a time, or spans)
+   * Moving rows (changing order)
+   * Set a single column value on a single row
+   * Set multiple values on a single row
+   * Set a single column to the same value for all rows
+   * Apply a function to the value of a single column for each row (example: multiply Column C of each row by two)
+   * Add new columns
+   * _Remove a column_ (pending)
+   * Undo and of the above actions
+   * Redo a previously-undone action
+
 ## TODO / Known Issues
 
    * UI controls to edit / remove images
