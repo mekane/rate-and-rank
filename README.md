@@ -115,17 +115,52 @@ match the column name exactly in order to match. Example rows that would go with
 
 The following operations are supported:
 
-   * Add rows
-   * Remove rows (one at a time, or spans)
-   * Moving rows (changing order)
-   * Set a single column value on a single row
-   * Set multiple values on a single row
-   * Set a single column to the same value for all rows
-   * Apply a function to the value of a single column for each row (example: multiply Column C of each row by two)
-   * Add new columns
+   * `addRow` add a new row, with optional values for columns
+   * `removeRow` one at a time, or a span
+   * `moveRow` to another spot in the order
+   * `setField` of a single column on a single row
+   * `setField` on multiple columns on a single row
+   * `setField` of a single column to the same value for all rows
+   * `setField` on all rows by applying a function to the value of a single column (example: multiply Column C of each row by two)
+   * `addColumn` which modifies the config and adds a default value to all rows
    * _Remove a column_ (pending)
-   * Undo and of the above actions
-   * Redo a previously-undone action
+   * `undo` any of the above actions
+   * `redo` a previously-undone action
+
+To modify the state of a DataGrid you must pass it a message using its `send()` method. At minimum you must pass an object
+specifying which action (using an `actionName` listed above). Example: `instance.send({action: 'addRow'});`
+
+After sending the action you can use `getState()` to retrieve a representation of the current grid state including the 
+changes from the action, if any. Note that if the action would not have any effect the exact same state is returned. In
+the case of an in-memory DataGrid you can check object equivalence to avoid any rendering at all. 
+
+Some actions don't require any additional parameters, while some have several options. These are detailed below:
+
+#### Add Row
+With no additional parameters this will add a blank row to the end of the grid with all default values determined by the
+column definitions.
+
+If you want to specify the initial values include a `row` parameter which is an object mapping column names to values.
+Example: `instance.send({action: 'addRow', row: {'Column A': 'A4', 'Column B': 'B4', 'Column C': 4}})`
+
+#### Remove Row
+Requires a `rowIndex` parameter that specifies which row (zero-indexed) to remove. 
+
+An optional `count` parameter allows you to remove a span of rows starting at `rowIndex`.
+
+Example: `instance.send({action: 'removeRow', rowIndex: 0})` will remove the first row.
+
+#### Move Row
+
+`rowIndex`
+`newIndex`
+
+#### Set Field
+
+#### Add Column
+
+#### Undo / Redo
+These don't require any parameters, they simply shift the grid's internal state backwards or forwards.
 
 ## TODO / Known Issues
 
