@@ -93,7 +93,7 @@ Allowed column types are:
 Columns can include an optional default value which will be assigned to new rows if no initial value is included for the
 the column. 
 
-Note that the DataGrid object also has a toJson() method which returns a JSON string representation of the grid in its
+Note that the DataGrid object also has a `toJson()` method which returns a JSON string representation of the grid in its
 current state. This string can be passed to the `DataGrid` initializer rather than a config object to un-serialize the
 JSON string and return a new DataGrid instance with the state that was serialized.
 

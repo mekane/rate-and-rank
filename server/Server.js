@@ -132,7 +132,7 @@ function getLogin(req, res) {
         html: _ => {
             if (loggedin) {
                 logRequest(req, html, 'logged in - redirect to home');
-                res.redirect('/');
+                res.redirect('/home');
             }
             else {
                 logRequest(req, html, `not logged in - show login page`);
