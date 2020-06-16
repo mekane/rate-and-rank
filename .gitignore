@@ -6,4 +6,5 @@ node_modules/
 data/
 scratch/
 sessions/
+server/lib/
 test/fileStoreTestData/

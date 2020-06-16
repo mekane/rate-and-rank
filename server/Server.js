@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const DataGrid = require('../src/DataGrid');
+const DataGrid = require('./lib/serverDependencies').DataGrid;
 
 //for accepts-content matching
 const html = 'text/html';
