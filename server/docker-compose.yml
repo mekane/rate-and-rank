@@ -1,0 +1,11 @@
+version: '2.0'
+services:
+  server:
+    environment:
+      COMPOSE_CONVERT_WINDOWS_PATHS: "true"
+    build: .
+    ports:
+      - "8666:8666"
+    volumes:
+      # host:container
+      - ./data:/home/node/rate-and-rank/data
