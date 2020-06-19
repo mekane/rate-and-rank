@@ -4,9 +4,10 @@
 {{#status}}
     <div class="message{{error}}">{{ message }}</div>
 {{/status}}
-<form action="login" method="POST">
+<form action="/login" method="POST">
     <input type="text" name="username" placeholder="Username" required>
     <input type="password" name="password" placeholder="Password" required>
+    <input type="hidden" name="path" value="{{ redirect }}">
     <input type="submit">
 </form>
 

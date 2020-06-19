@@ -15,6 +15,13 @@ let initialized = false;
 
 const inMemoryGridsPerUser = {};
 
+function accessLogger(req, res, next) {
+    const date = new Date().toDateString();
+    const path = req.path;
+    console.log(`*** Request: ${date} ${req.ip} ${req.method} ${path}`);
+    next();
+}
+
 function initialize(port, injectedSessionHandler, injectedUserRepo, injectedDataStore) {
     if (initialized)
         throw new Error('Error server is already running!');
@@ -26,6 +33,7 @@ function initialize(port, injectedSessionHandler, injectedUserRepo, injectedData
     app.engine('mustache', require('mustache-express')());
     app.set('view engine', 'mustache');
 
+    app.use(accessLogger);
     app.use(express.static('public'));
     app.use(injectedSessionHandler);
     app.use(bodyParser.json());
@@ -110,19 +118,28 @@ function isLoggedIn(request) {
 
 function enforceLoggedIn(req, res) {
     res.format({
-        html: _ => res.render('login', {
-            title: 'Login',
-            status: {message: 'Please log in to see the requested content'},
-            redirect: req.path  //TODO: use redirect after login
-        }),
-        json: _ => res.json({
-            loggedin: false,
-            error: true,
-            loginpath: loginPath,
-            message: `login required to access ${req.path}`
-        })
+        html: _ => {
+            logRequest(req, html, 'not logged in - render login page');
+            res.render('login', {
+                title: 'Login',
+                status: {message: 'Please log in to see the requested content'},
+                redirect: req.path  //TODO: use redirect after login
+            });
+        },
+        json: _ => {
+            logRequest(req, json, `not logged in - show login message`);
+            res.json({
+                loggedin: false,
+                error: true,
+                loginpath: loginPath,
+                message: `login required to access ${req.path}`
+            });
+        },
+        default: _ => {
+            logRequest(req, 'DEFAULT', 'no acceptable content found');
+            res.status(406).send('Not Acceptable');
+        }
     });
-    res.end();
 }
 
 function getLogin(req, res) {
@@ -154,7 +171,7 @@ function getLogin(req, res) {
 function getLogout(req, res) {
     logRequest(req, html, 'Log Out');
     if (req.session) {
-        req.session.destroy(function (e) { //TODO: test with two sessions? Do I need to specify my session id?
+        req.session.destroy(function(e) { //TODO: test with two sessions? Do I need to specify my session id?
             console.log('Session Destroyed');
         });
     }
@@ -168,9 +185,13 @@ function getLogout(req, res) {
 function postLogin(req, res) {
     const username = req.body.username;
     const password = req.body.password;
+    const path = req.body.path;
     const user = userRepository.getUser(username, password);
 
+    console.log(`Login posted for user ${username}`);
+
     if (user == null) {
+        console.log('  user not found - back to login page');
         return res.format({
             html: _ => {
                 logRequest(req, html, 'bad login - show error page');
@@ -190,15 +211,20 @@ function postLogin(req, res) {
         req.session.userId = username;
         req.session.username = username;
 
-        return res.format({
-            html: _ => {
-                logRequest(req, html, 'successful login - redirect to homepage');
-                res.redirect('/home');
-            },
-            json: _ => {
-                logRequest(req, json, 'successful login - send success data');
-                res.json({loggedin: true});
-            }
+        const redirectPath = (typeof path === 'string' && path.length > 0) ? path : '/home';
+        console.log(`  successful login - redirect to ${redirectPath}`);
+
+        req.session.save(function(err) {
+            return res.format({
+                html: _ => {
+                    logRequest(req, html, 'successful login - redirect to homepage');
+                    res.redirect(redirectPath);
+                },
+                json: _ => {
+                    logRequest(req, json, 'successful login - send success data');
+                    res.json({loggedin: true});
+                }
+            });
         });
     }
 }
@@ -245,14 +271,18 @@ function getListOfGridsForUser(req, res) {
 }
 
 function getGrid(req, res) {
+    const gridId = req.params['id'];
+    console.log(`  getGrid ${gridId}`);
+
     if (!isLoggedIn(req)) {
-        return enforceLoggedIn(req, res)
+        console.log('  not logged in - enforce login');
+        return enforceLoggedIn(req, res);
     }
 
-    const gridId = req.params['id'];
     const grid = retrieveGrid(req, gridId);
 
     if (!grid) {
+        console.log('  grid is falsy, show 404');
         return res.status(404).format({
             html: _ => {
                 logRequest(req, html, `get grid ${gridId} 404`);
@@ -272,6 +302,7 @@ function getGrid(req, res) {
     const actionUrl = baseUrl + `/grid/${gridId}/action`;
     const getStateUrl = baseUrl + `/grid/${gridId}`;
 
+    console.log(`  got grid ${gridName}, rendering`);
     return res.format({
         html: _ => {
             logRequest(req, html, `show grid application page for grid ${gridId}`);
@@ -370,6 +401,7 @@ function putGridAction(req, res) {
 }
 
 function send404(req, res, next) {
+    console.log(`Hit 404 for ${req.path}`);
     return res.status(404).render('pageNotFound', {title: "Page Not Found", path: req.path});
 }
 

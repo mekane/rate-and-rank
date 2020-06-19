@@ -33,9 +33,6 @@ const userStore = {
 
         const pw = hash(password, user.salt);
 
-        console.log('pw', pw);
-        console.log('us', user.password);
-
         if (pw === user.password) {
             return {
                 username,
