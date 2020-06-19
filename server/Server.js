@@ -215,9 +215,10 @@ function postLogin(req, res) {
         console.log(`  successful login - redirect to ${redirectPath}`);
 
         req.session.save(function(err) {
+            console.log('  done saving login to session ', err);
             return res.format({
                 html: _ => {
-                    logRequest(req, html, 'successful login - redirect to homepage');
+                    logRequest(req, html, `successful login - redirect to ${path}`);
                     res.redirect(redirectPath);
                 },
                 json: _ => {
@@ -283,16 +284,7 @@ function getGrid(req, res) {
 
     if (!grid) {
         console.log('  grid is falsy, show 404');
-        return res.status(404).format({
-            html: _ => {
-                logRequest(req, html, `get grid ${gridId} 404`);
-                res.render('grid', {title: gridName, gridName});
-            },
-            json: _ => {
-                logRequest(req, json, `grid state ${gridId} 404`);
-                res.json({error: true, errorCode: 404, message: `grid id ${gridId} not found`});
-            }
-        });
+        return send404(req, res);
     }
 
     const gridName = grid.getState().config.name;
