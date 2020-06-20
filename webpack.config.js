@@ -15,7 +15,7 @@ const viewBundles = {
 }
 
 const serverBundle = {
-    entry: './src/serverLib.js',
+    entry: './src/Server/index.js',
     mode: 'production',
     target: 'node',
     output: {
