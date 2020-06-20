@@ -1,4 +1,7 @@
-const htmlHelpers = require('../../src/htmlHelpers');
+/**
+ * Shared code and convenience functions used by the snabbdom view components
+ */
+const htmlHelpers = require('../htmlHelpers');
 
 export function getGridCellClassName(columnName, rowNumber) {
     const name = htmlHelpers.toCssClassName(columnName);

@@ -1,5 +1,3 @@
-import DataGrid from '../../src/DataGrid';
-
 /**
  * This module is used to send grid actions to a local in-memory DataGrid.
  *
@@ -10,6 +8,8 @@ import DataGrid from '../../src/DataGrid';
  * functions which will be passed the current state after the action complete. If
  * you pass an object with a function property named 'update' that will be called.
  */
+import DataGrid from '../DataGrid';
+
 export default function InMemoryDataGridActionDispatcher(config, rows) {
     const subscribers = new Set();
     const grid = DataGrid(config, rows);

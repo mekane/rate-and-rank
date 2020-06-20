@@ -1,3 +1,8 @@
+/**
+ * Functions to enable a single global stack of undo Command-pattern undo/redo actions shared
+ * by all the instances of DataGrid views on the same page.
+ */
+
 import waitForDocumentReady from "./documentReady";
 
 window.dataGridUndos = [];
