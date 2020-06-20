@@ -2,7 +2,7 @@ const deepFreeze = require('deep-freeze');
 const expect = require('chai').expect;
 
 const Validator = require('jsonschema').Validator;
-const dataGridConfigSchema = require('../schema/DataGridConfig.schema.json');
+const dataGridConfigSchema = require('../src/schema/DataGridConfig.schema.json');
 const validator = new Validator();
 
 const DataGrid = require('../src/DataGrid');

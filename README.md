@@ -52,7 +52,7 @@ After cloning the repository,
 ### Creating a Data Grid
 
 You get an instance of a DataGrid by passing the the DataGrid function a config object. The configuration must conform
-to the JSON schema in _/schema/DataGridConfig.schema.json_ (you will get back `null` if there is a problem, and an error
+to the JSON schema in _src/schema/DataGridConfig.schema.json_ (you will get back `null` if there is a problem, and an error
 will be logged). Important details in the config are a name for the grid and an array of columns. Example:
 
 ```javascript
