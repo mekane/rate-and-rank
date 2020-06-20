@@ -1,5 +1,7 @@
 /**
- * The "main" module that will set up a DataGrid, initialize the view, and coordinate message passing and rendering
+ * The entry point for initializing a browser view for a Data Grid.
+ * Takes an element to attach to and an action dispenser.
+ * Coordinate message passing and rendering
  */
 import waitForDocumentReady from "./documentReady";
 
@@ -13,7 +15,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
     require('snabbdom/modules/eventlisteners').default
 ]);
 
-import {Grid as GridView} from './Grid';
+import {Grid} from './Grid';
 import {addGlobalRedoEntry, addGlobalUndoEntry, updateUndoRedoButtonStates} from "./globalGridControls";
 
 /**
@@ -51,7 +53,7 @@ export default function DataGridView(attachElement, actionDispatcher) {
 
     function render(nextState) {
         console.log('Got new state from actionDispatcher module', nextState);
-        const nextView = GridView(nextState, actionDispatch);
+        const nextView = Grid(nextState, actionDispatch);
         vnode = patch(vnode, nextView);
     }
 }

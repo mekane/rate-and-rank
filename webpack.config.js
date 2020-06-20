@@ -2,8 +2,8 @@ const path = require('path');
 
 const viewBundles = {
     entry: {
-        'demo/browserDemo': './view/index.browserDemo.js',
-        jsonApiClient: './view/index.jsonApiClient.js',
+        'demo/browserDemo': './src/BrowserOnlyGridViewModule/index.js',
+        serverBackedGridView: './src/ServerBackedGridViewModule/index.js',
     },
     mode: 'production',
     target: 'web',
@@ -15,7 +15,7 @@ const viewBundles = {
 }
 
 const serverBundle = {
-    entry: './src/serverLib.js',
+    entry: './src/Server/index.js',
     mode: 'production',
     target: 'node',
     output: {

@@ -1,3 +1,7 @@
+/**
+ * Similar to viewHelpers, but specifically for handling the browser event behavior drag-and-dropping rows
+ */
+
 const rowDataType = 'text/actionjson';
 
 export function initDataTransfer(dt, rowData) {

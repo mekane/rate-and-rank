@@ -1,6 +1,6 @@
 import {getGridCellClassName, preventTab, tabToNextCell} from "./viewHelpers";
 
-const htmlHelpers = require('../../src/htmlHelpers');
+const htmlHelpers = require('../htmlHelpers');
 
 const markdownOptions = {
     html: false, //don't allow arbitrary html in markdown blocks
