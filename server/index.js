@@ -17,4 +17,7 @@ const userStore = require('./hardcoded-user-store');
 
 fileStore = JsonFileStore('data');
 
-Server.initialize(port, sessionMiddleware, userStore, fileStore);
+//Set environment variable or invoke script with `urlBase=<hostname> node index.js`
+const urlBase = process.env['urlBase'] || 'localhost';
+
+Server.initialize(port, urlBase, sessionMiddleware, userStore, fileStore);

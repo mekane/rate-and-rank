@@ -22,7 +22,7 @@ function accessLogger(req, res, next) {
     next();
 }
 
-function initialize(port, injectedSessionHandler, injectedUserRepo, injectedDataStore) {
+function initialize(port, injectedHostname, injectedSessionHandler, injectedUserRepo, injectedDataStore) {
     if (initialized)
         throw new Error('Error server is already running!');
 
@@ -42,8 +42,7 @@ function initialize(port, injectedSessionHandler, injectedUserRepo, injectedData
     setupRouting(app);
     app.use(send404); //
 
-    const hostname = 'localhost'//os.hostname();
-    baseUrl = `http://${hostname}:${port}`;
+    baseUrl = `http://${injectedHostname}:${port}`;
 
     app.listen(port, () => console.log(`Rate and Rank app listening at ${baseUrl}`));
     initialized = true;
