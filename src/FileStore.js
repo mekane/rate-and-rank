@@ -5,8 +5,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const memCheat = {};
-
 function FileStore(dataPath) {
     ensureDirectory(dataPath);
 
@@ -20,8 +18,7 @@ function FileStore(dataPath) {
             console.log(e);
             return;
         }
-        //console.log(`Read ${fileName}`);
-        //console.log(fileContents);
+
         return fileContents;
     }
 
