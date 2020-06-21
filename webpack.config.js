@@ -25,4 +25,15 @@ const serverBundle = {
     }
 }
 
-module.exports = [viewBundles, serverBundle];
+const newGridFormBundle = {
+    entry: './src/NewGridForm/index.js',
+    mode: 'production',
+    target: 'web',
+    output: {
+        filename: 'newGridForm.js',
+        library: 'NewGridForm',
+        path: path.resolve(__dirname, 'server', 'public')
+    }
+}
+
+module.exports = [viewBundles, serverBundle, newGridFormBundle];
