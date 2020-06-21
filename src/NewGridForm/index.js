@@ -9,6 +9,14 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 ]);
 const h = require('snabbdom/h').default;
 
+const columnTypes = [
+    'string',
+    'markdown',
+    'number',
+    'image',
+    'choice'
+];
+
 const config = {
     name: 'New Grid',
     columns: [
@@ -23,6 +31,9 @@ rootNode.className = formClassName;
 
 let rootVnode = toVNode(rootNode);
 
+let oldForm;
+let oldConfigInput;
+
 /**
  * This module progressively enhances the New Grid form in the rate and rank server
  * to provide an interactive builder for a new grid config. It converts the values
@@ -30,13 +41,11 @@ let rootVnode = toVNode(rootNode);
  * existing config input.
  */
 export function init(formSelector) {
-    const form = document.querySelector(formSelector);
-
-    const configInput = form.querySelector('textarea[name="config"]');
-    console.log('config', configInput);
+    oldForm = document.querySelector(formSelector);
+    oldConfigInput = oldForm.querySelector('textarea[name="config"]');
 
     console.log('hide form');
-    form.style.display = 'none';
+    //form.style.display = 'none';
 
     console.log('initialize interactive inputs');
     document.querySelector('body').appendChild(rootNode);
@@ -46,12 +55,91 @@ export function init(formSelector) {
 
 function renderGridForm() {
     console.log(config);
+    oldConfigInput.value = JSON.stringify(config);
 
-    const newVnode = h('div.' + formClassName, [
-        h('div', 'Interactive New Grid Form'),
-        h('p', config.count || 0),
-        h('button', {on: {click: e => {config.count = 1 + (config.count||0); renderGridForm()}}}, 'Click Me')
-    ]);
+    const newVnode = formTopLevel();
+
     patch(rootVnode, newVnode);
     rootVnode = newVnode;
+}
+
+function formTopLevel() {
+    return h('div.' + formClassName, [
+        h('header', 'New Grid Definition'),
+        nameInput(),
+        ...columns()
+    ]);
+}
+
+function nameInput() {
+    const input = h('input', {
+        attrs: {
+            type: 'text'
+        },
+        on: {
+            change: e => setName(e.target.value)
+        }
+    });
+    return h('label', ['Grid Name', input]);
+}
+
+function setName(newName) {
+    config.name = newName;
+    renderGridForm();
+}
+
+function columns() {
+    return config.columns.map(column);
+}
+
+function column(columnConfig, i) {
+    const columnType = columnConfig.type || 'string';
+
+    const nameInput = h('input.column-name', {
+            attrs: {
+                type: 'text',
+                value: config.columns[i].name
+            },
+            on: {
+                change: [setColumnName, i]
+            }
+        }
+    );
+    const name = h('label', ['Column Name', nameInput]);
+
+    const options = columnTypes.map(type => {
+        const attrs = {
+            value: type
+        };
+
+        if (type === columnType)
+            attrs.selected = true;
+
+        return h('option', {attrs}, type);
+    });
+
+    const typeInput = h('select.column-type', {
+            on: {
+                change: [setColumnType, i]
+            }
+        },
+        options
+    );
+    const type = h('label', ['Column Type', typeInput]);
+
+    const contents = [name, type];
+
+    return h('div.column', contents);
+}
+
+function setColumnName(num, e) {
+    console.log('setColumnName ' + num, e);
+    config.columns[num].name = e.target.value;
+    renderGridForm();
+}
+
+function setColumnType(num, e) {
+    console.log('setColumnType ' + num, e.target.value);
+    config.columns[num].type = e.target.value;
+    renderGridForm();
 }

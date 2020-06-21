@@ -1,3 +1,8 @@
 .interactive-grid-form {
     border: 2px solid mediumpurple;
 }
+
+.interactive-grid-form input {
+    padding: 4px;
+    margin-left: 4px;
+}

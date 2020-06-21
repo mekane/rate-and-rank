@@ -30,7 +30,7 @@ const newGridFormBundle = {
     mode: 'production',
     target: 'web',
     output: {
-        filename: 'newGridForm.js',
+        filename: 'newGridForm.bundle.js',
         library: 'NewGridForm',
         path: path.resolve(__dirname, 'server', 'public')
     }
