@@ -23,6 +23,7 @@
 .interactive-grid-form button {
     appearance: none;
     -moz-appearance: none;
+    -webkit-appearance: none;
     background: none;
     border: 0;
     cursor: pointer;
@@ -36,4 +37,13 @@ button.add {
 button.remove {
     border: 2px solid red;
     color: red;
+}
+
+button.submit {
+    background: darkgreen;
+    border: 1px solid darkgreen;
+    color: white;
+    font-size: 18px;
+    margin: 6px;
+    padding: 8px;
 }

@@ -68,7 +68,8 @@ function formTopLevel() {
         h('header', 'New Grid Definition'),
         nameInput(),
         addFirstColumn(),
-        ...columns()
+        ...columns(),
+        submitButton(),
     ]);
 }
 
@@ -185,7 +186,7 @@ function setColumnType(num, e) {
     renderGridForm();
 }
 
-function addColumn(num , e) {
+function addColumn(num, e) {
     const position = num + 1;
     config.columns.splice(position, 0, {name: `Column ${position}`});
     renderGridForm();
@@ -194,4 +195,14 @@ function addColumn(num , e) {
 function removeColumn(num, e) {
     config.columns.splice(num, 1);
     renderGridForm();
+}
+
+function submitButton() {
+    return h('button.submit', {
+            on: {
+                click: e => oldForm.submit()
+            }
+        },
+        'Create New Grid'
+    );
 }
