@@ -45,7 +45,7 @@ export function init(formSelector) {
     oldConfigInput = oldForm.querySelector('textarea[name="config"]');
 
     console.log('hide form');
-    //form.style.display = 'none';
+    oldForm.style.display = 'none';
 
     console.log('initialize interactive inputs');
     document.querySelector('body').appendChild(rootNode);

@@ -1,9 +1,9 @@
 .interactive-grid-form {
-    border: 2px solid mediumpurple;
+    border: none;
 }
 
 .interactive-grid-form header {
-    font-size: 18px;
+    font-size: 22px;
     margin: 6px 6px 18px;
 }
 
