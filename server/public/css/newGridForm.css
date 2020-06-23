@@ -32,11 +32,15 @@
 button.add {
     border: 2px solid green;
     color: green;
+    font-weight: bold;
+    min-width: 1.5rem;
 }
 
 button.remove {
     border: 2px solid red;
     color: red;
+    font-weight: bold;
+    min-width: 1.5rem;
 }
 
 button.submit {

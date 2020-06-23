@@ -42,12 +42,9 @@ let oldConfigInput;
  */
 export function init(formSelector) {
     oldForm = document.querySelector(formSelector);
+    oldForm.style.display = 'none';
     oldConfigInput = oldForm.querySelector('textarea[name="config"]');
 
-    console.log('hide form');
-    oldForm.style.display = 'none';
-
-    console.log('initialize interactive inputs');
     document.querySelector('body').appendChild(rootNode);
 
     renderGridForm();
@@ -99,7 +96,7 @@ function addFirstColumn() {
                 click: [addColumn, -1]
             }
         },
-        'Add First Column'
+        'Add Column'
     );
 }
 
@@ -144,24 +141,26 @@ function column(columnConfig, i) {
 
     const add = h('button.add', {
             attrs: {
+                title: 'Add Column After This One',
                 type: 'button'
             },
             on: {
                 click: [addColumn, i]
             }
         },
-        'Add Column After This One'
+        '+'
     );
 
     const remove = h('button.remove', {
             attrs: {
+                title: 'Remove This Column',
                 type: 'button'
             },
             on: {
                 click: [removeColumn, i]
             }
         },
-        'Remove This Column'
+        '-'
     );
 
     const contents = [name, type, add, remove];
