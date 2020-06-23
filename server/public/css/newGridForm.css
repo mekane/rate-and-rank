@@ -2,7 +2,38 @@
     border: 2px solid mediumpurple;
 }
 
-.interactive-grid-form input {
+.interactive-grid-form header {
+    font-size: 18px;
+    margin: 6px 6px 18px;
+}
+
+.interactive-grid-form input,
+.interactive-grid-form select {
+    font-size: 16px;
     padding: 4px;
-    margin-left: 4px;
+}
+
+.interactive-grid-form button,
+.interactive-grid-form input,
+.interactive-grid-form label,
+.interactive-grid-form select {
+    margin-left: 6px;
+}
+
+.interactive-grid-form button {
+    appearance: none;
+    -moz-appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+button.add {
+    border: 2px solid green;
+    color: green;
+}
+
+button.remove {
+    border: 2px solid red;
+    color: red;
 }

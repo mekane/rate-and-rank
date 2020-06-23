@@ -64,9 +64,10 @@ function renderGridForm() {
 }
 
 function formTopLevel() {
-    return h('div.' + formClassName, [
+    return h(`div.${formClassName}`, [
         h('header', 'New Grid Definition'),
         nameInput(),
+        addFirstColumn(),
         ...columns()
     ]);
 }
@@ -86,6 +87,19 @@ function nameInput() {
 function setName(newName) {
     config.name = newName;
     renderGridForm();
+}
+
+function addFirstColumn() {
+    return h('button.add', {
+            attrs: {
+                type: 'button'
+            },
+            on: {
+                click: [addColumn, -1]
+            }
+        },
+        'Add First Column'
+    );
 }
 
 function columns() {
@@ -127,7 +141,34 @@ function column(columnConfig, i) {
     );
     const type = h('label', ['Column Type', typeInput]);
 
-    const contents = [name, type];
+    const add = h('button.add', {
+            attrs: {
+                type: 'button'
+            },
+            on: {
+                click: [addColumn, i]
+            }
+        },
+        'Add Column After This One'
+    );
+
+    const remove = h('button.remove', {
+            attrs: {
+                type: 'button'
+            },
+            on: {
+                click: [removeColumn, i]
+            }
+        },
+        'Remove This Column'
+    );
+
+    const contents = [name, type, add, remove];
+
+    //TODO:
+    // * If number: min, max and step (also TODO: make these work)
+    // * If choice: add choice editor
+    // *
 
     return h('div.column', contents);
 }
@@ -141,5 +182,16 @@ function setColumnName(num, e) {
 function setColumnType(num, e) {
     console.log('setColumnType ' + num, e.target.value);
     config.columns[num].type = e.target.value;
+    renderGridForm();
+}
+
+function addColumn(num , e) {
+    const position = num + 1;
+    config.columns.splice(position, 0, {name: `Column ${position}`});
+    renderGridForm();
+}
+
+function removeColumn(num, e) {
+    config.columns.splice(num, 1);
     renderGridForm();
 }
