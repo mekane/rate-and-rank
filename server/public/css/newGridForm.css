@@ -1,3 +1,7 @@
+body {
+    background: #222;
+}
+
 .interactive-grid-form {
     border: none;
 }
@@ -50,4 +54,8 @@ button.submit {
     font-size: 18px;
     margin: 6px;
     padding: 8px;
+}
+
+div.properties {
+    margin: 2px 36px;
 }

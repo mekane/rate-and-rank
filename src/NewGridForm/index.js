@@ -42,7 +42,7 @@ let oldConfigInput;
  */
 export function init(formSelector) {
     oldForm = document.querySelector(formSelector);
-    oldForm.style.display = 'none';
+    //oldForm.style.display = 'none';
     oldConfigInput = oldForm.querySelector('textarea[name="config"]');
 
     document.querySelector('body').appendChild(rootNode);
@@ -139,6 +139,8 @@ function column(columnConfig, i) {
     );
     const type = h('label', ['Column Type', typeInput]);
 
+    const properties = makePropertiesSettings(columnType, i)
+
     const add = h('button.add', {
             attrs: {
                 title: 'Add Column After This One',
@@ -163,7 +165,7 @@ function column(columnConfig, i) {
         '-'
     );
 
-    const contents = [name, type, add, remove];
+    const contents = [name, type, add, remove, properties];
 
     //TODO:
     // * If number: min, max and step (also TODO: make these work)
@@ -182,6 +184,12 @@ function setColumnName(num, e) {
 function setColumnType(num, e) {
     console.log('setColumnType ' + num, e.target.value);
     config.columns[num].type = e.target.value;
+    renderGridForm();
+}
+
+function setColumnDefault(num, e) {
+    console.log('setColumnDefault ' + num, e);
+    config.columns[num].default = e.target.value;
     renderGridForm();
 }
 
@@ -204,4 +212,20 @@ function submitButton() {
         },
         'Create New Grid'
     );
+}
+
+function makePropertiesSettings(columnType, i) {
+    const defaultValueInput = h('input', {
+        attrs: {
+            type: 'text',
+            value: config.columns[i].default || ''
+        },
+        on: {
+            change: [setColumnDefault, i]
+        }
+    });
+
+    const defaultValue = h('label', ['Default Value', defaultValueInput]);
+
+    return h('div.properties', defaultValue);
 }
