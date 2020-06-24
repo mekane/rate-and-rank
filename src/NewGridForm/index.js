@@ -63,14 +63,14 @@ function renderGridForm() {
 function formTopLevel() {
     return h(`div.${formClassName}`, [
         h('header', 'New Grid Definition'),
-        nameInput(),
-        addFirstColumn(),
-        ...columns(),
-        submitButton(),
+        makeGridNameInput(),
+        makeAddFirstColumnButton(),
+        ...makeColumnEditors(),
+        makeSubmitButton(),
     ]);
 }
 
-function nameInput() {
+function makeGridNameInput() {
     const input = h('input', {
         attrs: {
             type: 'text'
@@ -87,7 +87,7 @@ function setName(newName) {
     renderGridForm();
 }
 
-function addFirstColumn() {
+function makeAddFirstColumnButton() {
     return h('button.add', {
             attrs: {
                 type: 'button'
@@ -100,25 +100,29 @@ function addFirstColumn() {
     );
 }
 
-function columns() {
+function makeColumnEditors() {
     return config.columns.map(column);
 }
 
 function column(columnConfig, i) {
     const columnType = columnConfig.type || 'string';
+    const columnDefault = columnConfig.default || '';
 
-    const nameInput = h('input.column-name', {
-            attrs: {
-                type: 'text',
-                value: config.columns[i].name
-            },
-            on: {
-                change: [setColumnName, i]
-            }
-        }
-    );
-    const name = h('label', ['Column Name', nameInput]);
+    const name = makeNameInput(i);
+    const type = makeTypeInput(columnType, i);
+    const properties = makePropertiesSettings(columnType, columnDefault, i);
+    const add = makeAddButton(i);
+    const remove = makeRemoveButton(i);
 
+    //TODO:
+    // * If number: min, max and step (also TODO: make these work)
+    // * If choice: add choice editor
+    // *
+
+    return h('div.column', [name, type, add, remove, properties]);
+}
+
+function makeTypeInput(columnType, i) {
     const options = columnTypes.map(type => {
         const attrs = {
             value: type
@@ -137,11 +141,42 @@ function column(columnConfig, i) {
         },
         options
     );
-    const type = h('label', ['Column Type', typeInput]);
 
-    const properties = makePropertiesSettings(columnType, i)
+    return h('label', ['Column Type', typeInput]);
+}
 
-    const add = h('button.add', {
+function makeNameInput(i) {
+    const nameInput = h('input.column-name', {
+            attrs: {
+                type: 'text',
+                value: config.columns[i].name
+            },
+            on: {
+                change: [setColumnName, i]
+            }
+        }
+    );
+    return h('label', ['Column Name', nameInput]);
+}
+
+function makePropertiesSettings(columnType, columnDefault, i) {
+    const defaultValueInput = h('input', {
+        attrs: {
+            type: 'text',
+            value: columnDefault
+        },
+        on: {
+            change: [setColumnDefault, i]
+        }
+    });
+
+    const defaultValue = h('label', ['Default Value', defaultValueInput]);
+
+    return h('div.properties', defaultValue);
+}
+
+function makeAddButton(i) {
+    return h('button.add', {
             attrs: {
                 title: 'Add Column After This One',
                 type: 'button'
@@ -152,8 +187,10 @@ function column(columnConfig, i) {
         },
         '+'
     );
+}
 
-    const remove = h('button.remove', {
+function makeRemoveButton(i) {
+    return h('button.remove', {
             attrs: {
                 title: 'Remove This Column',
                 type: 'button'
@@ -164,15 +201,6 @@ function column(columnConfig, i) {
         },
         '-'
     );
-
-    const contents = [name, type, add, remove, properties];
-
-    //TODO:
-    // * If number: min, max and step (also TODO: make these work)
-    // * If choice: add choice editor
-    // *
-
-    return h('div.column', contents);
 }
 
 function setColumnName(num, e) {
@@ -204,7 +232,7 @@ function removeColumn(num, e) {
     renderGridForm();
 }
 
-function submitButton() {
+function makeSubmitButton() {
     return h('button.submit', {
             on: {
                 click: e => oldForm.submit()
@@ -212,20 +240,4 @@ function submitButton() {
         },
         'Create New Grid'
     );
-}
-
-function makePropertiesSettings(columnType, i) {
-    const defaultValueInput = h('input', {
-        attrs: {
-            type: 'text',
-            value: config.columns[i].default || ''
-        },
-        on: {
-            change: [setColumnDefault, i]
-        }
-    });
-
-    const defaultValue = h('label', ['Default Value', defaultValueInput]);
-
-    return h('div.properties', defaultValue);
 }
