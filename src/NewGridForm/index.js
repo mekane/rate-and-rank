@@ -114,7 +114,6 @@ function column(columnConfig, i) {
     const remove = makeRemoveButton(i);
 
     //TODO:
-    // * If number: min, max and step (also TODO: make these work)
     // * If choice: add choice editor
     // *
 

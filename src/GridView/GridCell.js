@@ -278,9 +278,20 @@ function getCellContentEditor(columnDef, originalValue, submitFn, cancelFn, tabF
             input.appendChild(option);
         });
     }
+    else if (type === 'number'){
+        input = document.createElement('input');
+        input.type = 'number';
+        input.value = originalValue;
+        if (typeof columnDef.min !== 'undefined')
+            input.min = columnDef.min;
+        if (typeof columnDef.max !== 'undefined')
+            input.max = columnDef.max;
+        if (typeof columnDef.step !== 'undefined')
+            input.step = columnDef.step;
+    }
     else {
         input = document.createElement('input');
-        input.type = (type === 'number' ? 'number' : 'text');
+        input.type = 'text';
         input.value = originalValue;
     }
 
