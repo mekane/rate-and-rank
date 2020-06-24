@@ -106,11 +106,10 @@ function makeColumnEditors() {
 
 function column(columnConfig, i) {
     const columnType = columnConfig.type || 'string';
-    const columnDefault = columnConfig.default || '';
 
     const name = makeNameInput(i);
     const type = makeTypeInput(columnType, i);
-    const properties = makePropertiesSettings(columnType, columnDefault, i);
+    const properties = makePropertiesSettings(columnConfig, i);
     const add = makeAddButton(i);
     const remove = makeRemoveButton(i);
 
@@ -159,16 +158,67 @@ function makeNameInput(i) {
     return h('label', ['Column Name', nameInput]);
 }
 
-function makePropertiesSettings(columnType, columnDefault, i) {
-    const defaultValue =makeDefaultValueInput(columnDefault, i);
+function makePropertiesSettings(columnConfig, i) {
+    const children = [];
+    const columnType = columnConfig.type || 'string';
 
-    return h('div.properties', defaultValue);
+    if (columnType === 'number') {
+        children.push(makeMinimumInput(columnConfig.min, i));
+        children.push(makeMaximumInput(columnConfig.max, i));
+        children.push(makeStepSizeInput(columnConfig.step, i));
+    }
+
+    children.push(makeDefaultValueInput(columnConfig, i));
+
+    return h('div.properties', children);
 }
 
-function makeDefaultValueInput(columnDefault, i) {
+function makeMinimumInput(current, i) {
+    const minInput = h('input', {
+        attrs: {
+            type: 'number',
+            value: current
+        },
+        on: {
+            change: [setColumnMin, i]
+        }
+    });
+    return h('label', ['Column Min', minInput]);
+}
+
+function makeMaximumInput(current, i) {
+    const maxInput = h('input', {
+        attrs: {
+            type: 'number',
+            value: current
+        },
+        on: {
+            change: [setColumnMax, i]
+        }
+    });
+    return h('label', ['Column Max', maxInput]);
+}
+
+function makeStepSizeInput(current, i) {
+    const stepSize = h('input', {
+        attrs: {
+            type: 'number',
+            value: current
+        },
+        on: {
+            change: [setColumnStepSize, i]
+        }
+    });
+    return h('label', ['Step Size', stepSize]);
+}
+
+function makeDefaultValueInput(columnConfig, i) {
+    const columnDefault = columnConfig.default || '';
+    const columnType = columnConfig.type || 'string';
+
     const defaultValueInput = h('input', {
         attrs: {
-            type: 'text',
+            type: columnType === 'number' ? 'number' : 'text',
             value: columnDefault
         },
         on: {
@@ -219,8 +269,22 @@ function setColumnType(num, e) {
     renderGridForm();
 }
 
+function setColumnMin(num, e) {
+    config.columns[num].min = e.target.value;
+    renderGridForm();
+}
+
+function setColumnMax(num, e) {
+    config.columns[num].max = e.target.value;
+    renderGridForm();
+}
+
+function setColumnStepSize(num, e) {
+    config.columns[num].step = e.target.value;
+    renderGridForm();
+}
+
 function setColumnDefault(num, e) {
-    console.log('setColumnDefault ' + num, e);
     config.columns[num].default = e.target.value;
     renderGridForm();
 }
