@@ -160,6 +160,12 @@ function makeNameInput(i) {
 }
 
 function makePropertiesSettings(columnType, columnDefault, i) {
+    const defaultValue =makeDefaultValueInput(columnDefault, i);
+
+    return h('div.properties', defaultValue);
+}
+
+function makeDefaultValueInput(columnDefault, i) {
     const defaultValueInput = h('input', {
         attrs: {
             type: 'text',
@@ -170,9 +176,7 @@ function makePropertiesSettings(columnType, columnDefault, i) {
         }
     });
 
-    const defaultValue = h('label', ['Default Value', defaultValueInput]);
-
-    return h('div.properties', defaultValue);
+    return h('label', ['Default Value', defaultValueInput]);
 }
 
 function makeAddButton(i) {
