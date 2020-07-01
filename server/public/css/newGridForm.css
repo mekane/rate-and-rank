@@ -1,3 +1,7 @@
+body {
+    background: #333;
+}
+
 .interactive-grid-form {
     border: none;
 }

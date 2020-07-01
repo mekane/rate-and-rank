@@ -27,7 +27,8 @@ const serverBundle = {
 
 const newGridFormBundle = {
     entry: './src/NewGridForm/index.js',
-    mode: 'production',
+    //mode: 'production',
+    mode: 'development',
     target: 'web',
     output: {
         filename: 'newGridForm.bundle.js',

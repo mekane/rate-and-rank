@@ -14,7 +14,7 @@ const columnTypes = [
     'markdown',
     'number',
     'image',
-    'choice'
+    'option'
 ];
 
 const config = {
@@ -109,13 +109,9 @@ function column(columnConfig, i) {
 
     const name = makeNameInput(i);
     const type = makeTypeInput(columnType, i);
+    const add = makeAddColumnButton(i);
+    const remove = makeRemoveColumnButton(i);
     const properties = makePropertiesSettings(columnConfig, i);
-    const add = makeAddButton(i);
-    const remove = makeRemoveButton(i);
-
-    //TODO:
-    // * If choice: add choice editor
-    // *
 
     return h('div.column', [name, type, add, remove, properties]);
 }
@@ -167,6 +163,10 @@ function makePropertiesSettings(columnConfig, i) {
         children.push(makeStepSizeInput(columnConfig.step, i));
     }
 
+    if (columnType === 'option') {
+        children.push(makeOptionsEditor(columnConfig, i));
+    }
+
     children.push(makeDefaultValueInput(columnConfig, i));
 
     return h('div.properties', children);
@@ -211,6 +211,86 @@ function makeStepSizeInput(current, i) {
     return h('label', ['Step Size', stepSize]);
 }
 
+function makeOptionsEditor(columnConfig, columnNum) {
+    const columnOptions = Object.keys(columnConfig.options || []);
+    console.log('make options', columnOptions);
+    const options = columnOptions.map(makeOptionRow);
+
+    if (options.length === 0) {
+        options.push(h('button.add', {
+                attrs: {
+                    title: 'Add option after this one',
+                    type: 'button'
+                },
+                on: {
+                    click: [addOption, columnNum, 'test']
+                }
+            },
+            '+'
+        ));
+    }
+
+    return h('div', options);
+
+    function makeOptionRow(optionValue, keyNum) {
+        const add = h('button.add', {
+                attrs: {
+                    title: 'Add option after this one',
+                    type: 'button'
+                },
+                on: {
+                    click: [addOption, columnNum, optionValue]
+                }
+            },
+            '+'
+        );
+        const remove = h('button.remove', {
+                attrs: {
+                    title: 'Remove this option',
+                    type: 'button'
+                },
+                on: {
+                    click: [removeOption, columnNum, optionValue]
+                }
+            },
+            '-'
+        );
+        const optionInput = h('input', {
+            attrs: {
+                type: 'text',
+                value: optionValue
+            },
+            on: {
+                change: [setOptionValue, columnNum, optionValue]
+            }
+        });
+
+        const option = h('label', [optionInput]);
+
+        return h('div.option-row', [option, add, remove]);
+    }
+}
+
+function addOption(colNum, optVal, e) {
+    console.log('add option', colNum, optVal);
+    const options = config.columns[colNum].options;
+    if (typeof options !== 'object') {
+        config.columns[colNum].options = {};
+    }
+    config.columns[colNum].options[optVal] = optVal;
+    renderGridForm();
+}
+
+function removeOption(colNum, optVal) {
+    console.log('remove option', colNum, optVal);
+}
+
+function setOptionValue(colNum, optVal, e) {
+    const options = config.columns[colNum].options;
+    console.log(`replace ${optVal} with ${e.target.value}`);
+    //TODO: edit option value
+}
+
 function makeDefaultValueInput(columnConfig, i) {
     const columnDefault = columnConfig.default || '';
     const columnType = columnConfig.type || 'string';
@@ -228,7 +308,7 @@ function makeDefaultValueInput(columnConfig, i) {
     return h('label', ['Default Value', defaultValueInput]);
 }
 
-function makeAddButton(i) {
+function makeAddColumnButton(i) {
     return h('button.add', {
             attrs: {
                 title: 'Add Column After This One',
@@ -242,7 +322,7 @@ function makeAddButton(i) {
     );
 }
 
-function makeRemoveButton(i) {
+function makeRemoveColumnButton(i) {
     return h('button.remove', {
             attrs: {
                 title: 'Remove This Column',
