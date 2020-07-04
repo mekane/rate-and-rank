@@ -221,6 +221,7 @@ function makeEditable(columnDef, rowIndex, originalValue, actionDispatch, event)
 
         actionData.value = input.value;
         console.log('submit', actionData);
+        editor.remove();
         actionDispatch(actionData);
     }
 
@@ -285,7 +286,10 @@ function getCellContentEditor(columnDef, originalValue, submitFn, cancelFn, tabF
     }
 
     // This submits the input pretty much by default. We prevent it in cancel()
-    input.addEventListener('blur', submitFn);
+    input.addEventListener('blur', e => {
+        console.log('blur - submit', e.target);
+        submitFn();
+    });
     input.addEventListener('keydown', preventTab);
     input.addEventListener('keyup', e => {
         e.stopPropagation();
@@ -296,7 +300,7 @@ function getCellContentEditor(columnDef, originalValue, submitFn, cancelFn, tabF
                 cancelFn();
                 break;
             case "Tab":
-                console.log('input key tab - submit and tab');
+                console.log('input key tab - blur and tab');
                 input.blur();
                 tabFn(e.shiftKey);
                 break;
@@ -314,7 +318,7 @@ function getCellContentEditor(columnDef, originalValue, submitFn, cancelFn, tabF
 function submitOnEnter(submitFn) {
     return function(e) {
         if (e.key === 'Enter') {
-            console.log('submit on enter ' + e.key);
+            console.log(`submit on enter ${e.key} - blur`, e.target);
             e.target.blur();
         }
     }
