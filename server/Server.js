@@ -36,8 +36,8 @@ function initialize(port, injectedHostname, injectedSessionHandler, injectedUser
     app.use(accessLogger);
     app.use(express.static('public'));
     app.use(injectedSessionHandler);
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: true}));
+    app.use(bodyParser.json({limit: '1mb'}));
+    app.use(bodyParser.urlencoded({limit: '1mb', extended: true}));
 
     setupRouting(app);
     app.use(send404); //
