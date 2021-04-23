@@ -26,8 +26,8 @@ const styles = `
   
   .remove {
     background: rgba(0,0,0,0.4);
-    border: 1px solid red;
-    color: red;
+    border: 1px solid #c33;
+    color: #c33;
     cursor: pointer;
     display: none;
     font-family: arial;
@@ -38,7 +38,33 @@ const styles = `
     text-align: center;
     width: 20px;
   }
+  
+  .remove:hover {
+    border-color: #f00;
+    color: #f00;
+  }
 
+  .reset {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #3c3;
+    color: #3c3;
+    cursor: pointer;
+    display: none;
+    font-family: arial;
+    height: 20px;
+    line-height: 20px;
+    position: absolute;
+    right: 32px;
+    top: 4px;
+    text-align: center;
+    width: 20px;
+  }
+  
+  .reset:hover {
+    border-color: #0f0;
+    color: #0f0;
+  }
+  
   .drag {
     cursor: grab;
     background: rgba(0, 0, 0, 0.6);
@@ -74,7 +100,8 @@ const styles = `
   }
   
   .body.selected .drag,
-  .body.selected .remove {
+  .body.selected .remove,
+  .body.selected .reset {
     display: block;
   }
   
@@ -113,20 +140,17 @@ class ImageEditor extends HTMLElement {
         const body = create('div', '', 'body');
         this.bodyDiv = body;
 
-        const removeTag = create('div', 'x', 'remove');
-        removeTag.addEventListener('click', e => this.removeClicked(e))
-        body.appendChild(removeTag);
+        const removeButton = create('div', 'x', 'remove');
+        removeButton.addEventListener('click', e => this.removeClicked(e))
+        body.appendChild(removeButton);
+
+        const resetButton = create('div', 'R', 'reset');
+        resetButton.addEventListener('click', e => this.resetImageSize(e))
+        body.appendChild(resetButton);
 
         const imageTag = create('img');
         this.imageTag = imageTag;
-
-        imageTag.addEventListener('load', e => {
-            this.originalImageSize = {
-                width: this.imageTag.clientWidth,
-                height: this.imageTag.clientHeight
-            }
-            console.log('save original image size', this.originalImageSize)
-        });
+        imageTag.addEventListener('load', e => this.saveImageSize());
         body.addEventListener('click', e => this.imageClicked(e));
         body.appendChild(imageTag);
 
@@ -197,10 +221,7 @@ class ImageEditor extends HTMLElement {
 
     dragEnd(e) {
         console.log('drag end');
-        this.originalImageSize = {
-            width: this.imageTag.clientWidth,
-            height: this.imageTag.clientHeight
-        }
+        this.saveImageSize();
         this.cancelSelection();
     }
 
@@ -218,6 +239,20 @@ class ImageEditor extends HTMLElement {
     removeClicked(e) {
         this.imageTag.src = '';
         this.updateStylesForState();
+    }
+
+    resetImageSize(e) {
+        this.imageTag.removeAttribute('height');
+        this.imageTag.removeAttribute('width');
+        this.saveImageSize();
+    }
+
+    saveImageSize() {
+        this.originalImageSize = {
+            width: this.imageTag.clientWidth,
+            height: this.imageTag.clientHeight
+        }
+        console.log('save original image size', this.originalImageSize)
     }
 
     updateStylesForState() {
