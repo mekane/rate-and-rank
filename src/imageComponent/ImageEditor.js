@@ -201,7 +201,7 @@ class ImageEditor extends HTMLElement {
 
         const offset = this.dragOffset(e);
 
-        if (offset.x > offset.y) {
+        if (Math.abs(offset.x) > Math.abs(offset.y)) {
             console.log('pin width +' + offset.x)
             this.imageTag.removeAttribute('height');
             this.imageTag.width = this.originalImageSize.width + offset.x;
