@@ -71,10 +71,15 @@ class ImageEditor extends HTMLElement {
         shadowRoot.appendChild(body);
 
         document.addEventListener('click', e => this.bodyClicked(e))
+        document.addEventListener('keyup', e => this.keyUp(e))
     }
 
     bodyClicked(e) {
         //console.log('body clicked')
+        this.cancelSelection();
+    }
+
+    cancelSelection() {
         this.selectedMode = false;
         this.updateStylesForState();
     }
@@ -88,6 +93,13 @@ class ImageEditor extends HTMLElement {
         this.selectedMode = true;
         this.updateStylesForState();
         e.stopPropagation();
+    }
+
+    keyUp(e) {
+        //console.log(e.key);
+        if (e.key === 'Escape') {
+            this.cancelSelection()
+        }
     }
 
     set imageData(imageData) {
