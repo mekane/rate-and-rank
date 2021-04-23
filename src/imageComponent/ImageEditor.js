@@ -24,19 +24,28 @@ const styles = `
     border-color: #0f0;
   }
   
-  .remove {
-    background: rgba(0,0,0,0.4);
-    border: 1px solid #c33;
-    color: #c33;
+  button {
+    appearance: none;
     cursor: pointer;
     display: none;
     font-family: arial;
     height: 20px;
+    padding: 0;
     position: absolute;
-    right: 4px;
-    top: 4px;
     text-align: center;
     width: 20px;
+  }
+  
+  button:focus {
+    outline: 1px solid #ddd;
+  }
+  
+  .remove {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #c33;
+    color: #c33;    
+    right: 4px;
+    top: 4px;
   }
   
   .remove:hover {
@@ -48,16 +57,8 @@ const styles = `
     background: rgba(0,0,0,0.4);
     border: 1px solid #3c3;
     color: #3c3;
-    cursor: pointer;
-    display: none;
-    font-family: arial;
-    height: 20px;
-    line-height: 20px;
-    position: absolute;
     right: 32px;
     top: 4px;
-    text-align: center;
-    width: 20px;
   }
   
   .reset:hover {
@@ -140,11 +141,11 @@ class ImageEditor extends HTMLElement {
         const body = create('div', '', 'body');
         this.bodyDiv = body;
 
-        const removeButton = create('div', 'x', 'remove');
+        const removeButton = create('button', 'x', 'remove');
         removeButton.addEventListener('click', e => this.removeClicked(e))
         body.appendChild(removeButton);
 
-        const resetButton = create('div', 'R', 'reset');
+        const resetButton = create('button', 'R', 'reset');
         resetButton.addEventListener('click', e => this.resetImageSize(e))
         body.appendChild(resetButton);
 
