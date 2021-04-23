@@ -5,6 +5,10 @@ const styles = `
     margin-bottom: 6px;
     position: relative;
   }
+  
+  .body * {
+    user-select: none;
+  }
 
   img {
     border: 1px solid transparent;
@@ -78,6 +82,7 @@ const styles = `
 
 function create(tagName, initialText, cssClass = '') {
     const el = document.createElement(tagName);
+    el.draggable = false;
     el.textContent = initialText;
     if (cssClass.length) {
         const parts = cssClass.split(' ');
@@ -91,6 +96,10 @@ class ImageEditor extends HTMLElement {
 
     dragMode = false;
     selectedMode = false;
+
+    dragStartPosition = {x: 0, y: 0};
+
+    originalImageSize = {width: 0, height: 0};
 
     constructor() {
         super();
@@ -109,9 +118,17 @@ class ImageEditor extends HTMLElement {
         body.appendChild(removeTag);
 
         const imageTag = create('img');
+        this.imageTag = imageTag;
+
+        imageTag.addEventListener('load', e => {
+            this.originalImageSize = {
+                width: this.imageTag.clientWidth,
+                height: this.imageTag.clientHeight
+            }
+            console.log('save original image size', this.originalImageSize)
+        });
         body.addEventListener('click', e => this.imageClicked(e));
         body.appendChild(imageTag);
-        this.imageTag = imageTag;
 
         const dragHandleRight = create('div', '', 'drag right');
         dragHandleRight.addEventListener('mousedown', e => this.dragStart(e, 'right'))
@@ -129,10 +146,8 @@ class ImageEditor extends HTMLElement {
 
         document.addEventListener('click', e => this.cancelSelection())
         document.addEventListener('keyup', e => e.key === 'Escape' ? this.cancelSelection() : null)
-        document.addEventListener('mouseup', e => {
-            console.log('mouseup', e.target);
-            this.cancelSelection();
-        })
+        document.addEventListener('mouseup', e => this.dragEnd(e))
+        document.addEventListener('mousemove', e => this.drag(e))
     }
 
     cancelSelection() {
@@ -146,17 +161,51 @@ class ImageEditor extends HTMLElement {
     }
 
     dragStart(e, direction) {
-        console.log('mouse down ', e.target);
+        //console.log('mouse down ', e.target);
         if (!this.selectedMode)
             return;
 
-        console.log('start drag ' + direction)
-        this.dragMode = true;
+        //console.log('start drag ' + direction, e)
+        this.dragMode = direction;
+        this.dragStartPosition = {x: e.clientX, y: e.clientY};
         this.updateStylesForState();
     }
 
+    drag(e) {
+        if (!this.dragMode)
+            return;
+
+        const offset = this.dragOffset(e);
+
+        if (offset.x > offset.y) {
+            console.log('pin width +' + offset.x)
+            this.imageTag.removeAttribute('height');
+            this.imageTag.width = this.originalImageSize.width + offset.x;
+        } else {
+            console.log('pin height +' + offset.y)
+            this.imageTag.removeAttribute('width');
+            this.imageTag.height = this.originalImageSize.height + offset.y;
+        }
+    }
+
+    dragOffset(e) {
+        return {
+            x: e.clientX - this.dragStartPosition.x,
+            y: e.clientY - this.dragStartPosition.y
+        };
+    }
+
+    dragEnd(e) {
+        console.log('drag end');
+        this.originalImageSize = {
+            width: this.imageTag.clientWidth,
+            height: this.imageTag.clientHeight
+        }
+        this.cancelSelection();
+    }
+
     imageClicked(e) {
-        console.log('image clicked')
+        //console.log('image clicked')
         this.selectedMode = true;
         this.updateStylesForState();
         e.stopPropagation();
