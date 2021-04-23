@@ -1,6 +1,8 @@
 const styles = `
   .body {
     display: inline-block;
+    margin-right: 6px;
+    margin-bottom: 6px;
     position: relative;
   }
 
@@ -12,6 +14,10 @@ const styles = `
   .body.selected img{
     border: 1px solid black;
     cursor: auto;
+  }
+  
+  .body.dragging img {
+    border-color: #0f0;
   }
   
   .remove {
@@ -28,23 +34,62 @@ const styles = `
     text-align: center;
     width: 20px;
   }
+
+  .drag {
+    cursor: grab;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid black;
+    border-radius: 2px;
+    display: none;
+    height: 8px;
+    position: absolute;
+    width: 8px;
+  }
+
+  .drag:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
   
+  .drag.corner {
+    bottom: -4px;
+    right: -4px;
+  }
+  
+  .drag.right {
+    top: calc(50% - 24px);
+    right: -2px;
+    width: 4px;
+    height: 36px;
+  }
+  
+  .drag.bottom {
+    left: calc(50% - 24px);
+    bottom: -2px;
+    height: 4px;
+    width: 36px;
+  }
+  
+  .body.selected .drag,
   .body.selected .remove {
     display: block;
   }
+  
 `;
 
 function create(tagName, initialText, cssClass = '') {
     const el = document.createElement(tagName);
     el.textContent = initialText;
-    console.log(`create(${tagName}, '${initialText}', '${cssClass}')`)
-    if (cssClass.length)
-        el.classList.add(cssClass);
+    if (cssClass.length) {
+        const parts = cssClass.split(' ');
+        parts.forEach(c => el.classList.add(c))
+    }
+    //console.log(`create(${tagName}, '${initialText}', '${cssClass}')`)
     return el;
 }
 
 class ImageEditor extends HTMLElement {
 
+    dragMode = false;
     selectedMode = false;
 
     constructor() {
@@ -57,30 +102,42 @@ class ImageEditor extends HTMLElement {
         shadowRoot.appendChild(style);
 
         const body = create('div', '', 'body');
-        this.bodyTag = body;
+        this.bodyDiv = body;
 
         const removeTag = create('div', 'x', 'remove');
         removeTag.addEventListener('click', e => this.removeClicked(e))
         body.appendChild(removeTag);
 
         const imageTag = create('img');
-        imageTag.addEventListener('click', e => this.imageClicked(e));
+        body.addEventListener('click', e => this.imageClicked(e));
         body.appendChild(imageTag);
         this.imageTag = imageTag;
 
+        const dragHandleRight = create('div', '', 'drag right');
+        dragHandleRight.addEventListener('mousedown', e => this.dragStart(e, 'right'))
+        body.appendChild(dragHandleRight);
+
+        const dragHandleCorner = create('div', '', 'drag corner');
+        dragHandleCorner.addEventListener('mousedown', e => this.dragStart(e, 'corner'))
+        body.appendChild(dragHandleCorner);
+
+        const dragHandleBottom = create('div', '', 'drag bottom');
+        dragHandleBottom.addEventListener('mousedown', e => this.dragStart(e, 'bottom'))
+        body.appendChild(dragHandleBottom);
+
         shadowRoot.appendChild(body);
 
-        document.addEventListener('click', e => this.bodyClicked(e))
-        document.addEventListener('keyup', e => this.keyUp(e))
-    }
-
-    bodyClicked(e) {
-        //console.log('body clicked')
-        this.cancelSelection();
+        document.addEventListener('click', e => this.cancelSelection())
+        document.addEventListener('keyup', e => e.key === 'Escape' ? this.cancelSelection() : null)
+        document.addEventListener('mouseup', e => {
+            console.log('mouseup', e.target);
+            this.cancelSelection();
+        })
     }
 
     cancelSelection() {
         this.selectedMode = false;
+        this.dragMode = false;
         this.updateStylesForState();
     }
 
@@ -88,18 +145,21 @@ class ImageEditor extends HTMLElement {
         //console.log(`image editor connected (${this.isConnected})`, e)
     }
 
+    dragStart(e, direction) {
+        console.log('mouse down ', e.target);
+        if (!this.selectedMode)
+            return;
+
+        console.log('start drag ' + direction)
+        this.dragMode = true;
+        this.updateStylesForState();
+    }
+
     imageClicked(e) {
-        //console.log('image clicked')
+        console.log('image clicked')
         this.selectedMode = true;
         this.updateStylesForState();
         e.stopPropagation();
-    }
-
-    keyUp(e) {
-        //console.log(e.key);
-        if (e.key === 'Escape') {
-            this.cancelSelection()
-        }
     }
 
     set imageData(imageData) {
@@ -112,7 +172,8 @@ class ImageEditor extends HTMLElement {
     }
 
     updateStylesForState() {
-        this.bodyTag.classList.toggle('selected', this.selectedMode);
+        this.bodyDiv.classList.toggle('selected', this.selectedMode);
+        this.bodyDiv.classList.toggle('dragging', this.dragMode);
     }
 
 }
