@@ -17,6 +17,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 
 import {Grid} from './Grid';
 import {addGlobalRedoEntry, addGlobalUndoEntry, updateUndoRedoButtonStates} from "./globalGridControls";
+import '../imageComponent/ImageEditor.js';
 
 /**
  * attachElement - root virtual node that the render function hooks into
@@ -42,7 +43,7 @@ export default function DataGridView(attachElement, actionDispatcher) {
      * This setup depends on the DataGrid always adding a new state to history
      * when it gets an action message, even if it didn't modify the state.
      */
-    const actionDispatch = function(actionData) {
+    const actionDispatch = function (actionData) {
         actionDispatcher.send(actionData);
         addGlobalUndoEntry(actionDispatcher);
         updateUndoRedoButtonStates();

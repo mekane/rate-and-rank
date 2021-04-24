@@ -122,15 +122,14 @@ function create(tagName, initialText, cssClass = '') {
 
 class ImageEditor extends HTMLElement {
 
-    dragMode = false;
-    selectedMode = false;
-
-    dragStartPosition = {x: 0, y: 0};
-
-    originalImageSize = {width: 0, height: 0};
 
     constructor() {
         super();
+
+        this.dragMode = false;
+        this.selectedMode = false;
+        this.dragStartPosition = {x: 0, y: 0};
+        this.originalImageSize = {width: 0, height: 0};
 
         const shadowRoot = this.attachShadow({mode: 'open'});
 
@@ -173,10 +172,6 @@ class ImageEditor extends HTMLElement {
         document.addEventListener('keyup', e => e.key === 'Escape' ? this.cancelSelection() : null)
         document.addEventListener('mouseup', e => this.dragEnd(e))
         document.addEventListener('mousemove', e => this.drag(e))
-
-        const initialSrc = this.attributes.getNamedItem('src');
-        if (initialSrc)
-            this.imageSource = initialSrc.value;
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
@@ -190,7 +185,13 @@ class ImageEditor extends HTMLElement {
     }
 
     connectedCallback(e) {
-        //console.log(`image editor connected (${this.isConnected})`, e)
+        // console.log(`image editor connected (${this.isConnected})`, e)
+
+        const initialSrc = this.attributes.getNamedItem('src');
+        if (initialSrc) {
+            //console.log(' set initial source ', initialSrc)
+            this.src = initialSrc.value;
+        }
     }
 
     dragStart(e, direction) {
@@ -211,11 +212,9 @@ class ImageEditor extends HTMLElement {
         const offset = this.dragOffset(e);
 
         if (Math.abs(offset.x) > Math.abs(offset.y)) {
-            console.log('pin width +' + offset.x)
             this.imageTag.removeAttribute('height');
             this.imageTag.width = this.originalImageSize.width + offset.x;
         } else {
-            console.log('pin height +' + offset.y)
             this.imageTag.removeAttribute('width');
             this.imageTag.height = this.originalImageSize.height + offset.y;
         }
@@ -230,7 +229,7 @@ class ImageEditor extends HTMLElement {
 
     dragEnd(e) {
         if (this.dragMode) {
-            console.log('drag end');
+            //console.log('drag end');
             this.saveImageSize();
             this.cancelSelection();
         }
@@ -243,8 +242,8 @@ class ImageEditor extends HTMLElement {
         e.stopPropagation();
     }
 
-    set imageSource(imageData) {
-        console.log('set image source ' + imageData.substr(0, 20));
+    set src(imageData) {
+        // console.log('set image source ' + imageData.substr(0, 20));
         this.imageTag.src = imageData;
     }
 
@@ -264,7 +263,7 @@ class ImageEditor extends HTMLElement {
             width: this.imageTag.clientWidth,
             height: this.imageTag.clientHeight
         }
-        console.log('save original image size', this.originalImageSize)
+        //console.log('save original image size', this.originalImageSize)
     }
 
     updateStylesForState() {
