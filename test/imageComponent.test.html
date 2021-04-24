@@ -4,11 +4,13 @@
 </head>
 <body>
 <main></main>
+<image-editor
+        src="https://www.hungryhowies.com/sites/default/files/styles/menu_item_280x175/public/images/menu-items/thumbnails/buildyourownpizza_0.png?itok=fgzFck86"></image-editor>
 <script type="module">
     import '../src/imageComponent/ImageEditor.js';
 
     const comp = document.createElement('image-editor');
-    comp.imageData = getImageData();
+    comp.imageSource = getImageData();
     document.querySelector('main').appendChild(comp);
 
 

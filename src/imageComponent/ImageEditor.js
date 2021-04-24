@@ -173,6 +173,14 @@ class ImageEditor extends HTMLElement {
         document.addEventListener('keyup', e => e.key === 'Escape' ? this.cancelSelection() : null)
         document.addEventListener('mouseup', e => this.dragEnd(e))
         document.addEventListener('mousemove', e => this.drag(e))
+
+        const initialSrc = this.attributes.getNamedItem('src');
+        if (initialSrc)
+            this.imageSource = initialSrc.value;
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        console.log(`Custom element attribute ${name}: ${newValue}`);
     }
 
     cancelSelection() {
@@ -221,9 +229,11 @@ class ImageEditor extends HTMLElement {
     }
 
     dragEnd(e) {
-        console.log('drag end');
-        this.saveImageSize();
-        this.cancelSelection();
+        if (this.dragMode) {
+            console.log('drag end');
+            this.saveImageSize();
+            this.cancelSelection();
+        }
     }
 
     imageClicked(e) {
@@ -233,7 +243,8 @@ class ImageEditor extends HTMLElement {
         e.stopPropagation();
     }
 
-    set imageData(imageData) {
+    set imageSource(imageData) {
+        console.log('set image source ' + imageData.substr(0, 20));
         this.imageTag.src = imageData;
     }
 
