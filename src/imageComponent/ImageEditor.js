@@ -237,7 +237,7 @@ class ImageEditor extends HTMLElement {
 
     imageClicked(e) {
         //console.log('image clicked')
-        this.selectedMode = true;
+        this.selectedMode = !this.selectedMode;
         this.updateStylesForState();
         e.stopPropagation();
     }
