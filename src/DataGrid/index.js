@@ -128,15 +128,13 @@ function setField(config, previousState, data) {
         if (data.columnName && typeof data.value !== 'undefined') {
             rowToChange[data.columnName] = data.value;
             return nextState;
-        }
-        else if (data.values) {
+        } else if (data.values) {
             Object.keys(data.values).forEach(columnName => {
                 rowToChange[columnName] = data.values[columnName];
             });
             return nextState;
         }
-    }
-    else if (data.columnName) {
+    } else if (data.columnName) {
         const columnName = data.columnName;
 
         if (data.value) {
@@ -144,8 +142,7 @@ function setField(config, previousState, data) {
                 row[columnName] = data.value;
             });
             return nextState;
-        }
-        else if (data.fn && typeof data.fn === 'function') {
+        } else if (data.fn && typeof data.fn === 'function') {
             const columnConfig = config.columns[columnName];
             nextState.forEach((row, i) => {
                 row[columnName] = data.fn(row[columnName], i, columnConfig);
@@ -158,7 +155,7 @@ function setField(config, previousState, data) {
 }
 
 /*****************************************************************************
- * The factory function that returns a new data grid instance based on the
+ * The constructor function that returns a new DataGrid instance based on the
  * given configuration and optionally containing some initial rows.
  *****************************************************************************/
 function DataGrid(initialConfig, initialRows = []) {
@@ -207,14 +204,12 @@ function DataGrid(initialConfig, initialRows = []) {
                 future.unshift(state);
                 state = past.pop();
             }
-        }
-        else if (action === 'redo') {
+        } else if (action === 'redo') {
             if (future.length) {
                 past.push(state);
                 state = future.shift();
             }
-        }
-        else {
+        } else {
             past.push(state);
             state = handleMessage(state, message.action, message);
             future = [];

@@ -14,8 +14,19 @@ const basicConfig = {
         {name: 'Column B'},
         {name: 'Column C'}
     ]
-};
+}
 deepFreeze(basicConfig);
+
+const fullConfigWithAllOptions = {
+    name: "Full Config",
+    columns: [
+        {name: "Column A", type: "string", default: "Foo"},
+        {name: "column B", type: "number", default: 1},
+        {name: "column C", type: "image", default: 1},
+        {name: "Column D", type: "markdown"},
+        {name: "Column E", type: "option", options: {'a': 'A'}}
+    ]
+}
 
 function basicRows() {
     return [
@@ -43,18 +54,7 @@ describe('The DataGrid config schema', () => {
             columns: [{name: 'Column'}]
         };
         expect(validate(minimalConfig)).to.equal(true);
-
-        const fullConfig = {
-            name: "Full Config",
-            columns: [
-                {name: "Column A", type: "string", default: "Foo"},
-                {name: "column B", type: "number", default: 1},
-                {name: "column C", type: "image", default: 1},
-                {name: "Column D", type: "markdown"},
-                {name: "Column E", type: "option", options: {'a': 'A'}}
-            ],
-        };
-        expect(validate(fullConfig)).to.equal(true);
+        expect(validate(fullConfigWithAllOptions)).to.equal(true);
     });
 
     it('rejects invalid config objects', () => {
@@ -88,6 +88,10 @@ describe('The DataGrid config schema', () => {
 });
 
 describe('The DataGrid module', () => {
+    it(`exports a constructor function`, () => {
+        expect(DataGrid).to.be.a('function')
+    })
+
     it(`is initialized with a config object and a copy of the config is available on the instance`, () => {
         const initialConfig = {
             name: 'Test',
