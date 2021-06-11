@@ -68,7 +68,8 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-    outline: 2px solid rgba(55, 55, 199, 0.6);
+    /* outline: 2px solid rgba(55, 55, 199, 0.6);*/
+    outline: none;
 }
 
 div.image-drop-target {
