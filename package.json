@@ -4,6 +4,7 @@
   "description": "An application to set up data grids that can easily be ordered and configured",
   "main": "index.js",
   "scripts": {
+    "start": "cd server && npm start",
     "build": "./node_modules/.bin/webpack",
     "test": "mocha -b",
     "watch": "./node_modules/.bin/webpack --watch"
